@@ -1,0 +1,102 @@
+name: Build & Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+
+env:
+  IMAGE_NAME: asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/pso
+
+jobs:
+  deploy:
+    name: Build, Push & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # ─────────────────────────────────────────────
+      # 1. Checkout source code
+      # ─────────────────────────────────────────────
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────────
+      # 2. Authenticate to Google Cloud
+      # ─────────────────────────────────────────────
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      # ─────────────────────────────────────────────
+      # 3. Setup Google Cloud SDK
+      # ─────────────────────────────────────────────
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      # ─────────────────────────────────────────────
+      # 4. Configure Docker authentication for
+      #    Artifact Registry (asia-southeast2)
+      # ─────────────────────────────────────────────
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker asia-southeast2-docker.pkg.dev --quiet
+
+      # ─────────────────────────────────────────────
+      # 5. Build Docker image (multi-stage: Vite + PHP)
+      #    and push to Artifact Registry
+      # ─────────────────────────────────────────────
+      - name: Build & Push Docker Image
+        run: |
+          docker build \
+            --tag ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --tag ${{ env.IMAGE_NAME }}:latest \
+            --file Dockerfile \
+            .
+
+          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.IMAGE_NAME }}:latest
+
+      # ─────────────────────────────────────────────
+      # 6. Deploy to Cloud Run
+      #    – port 8080 (Apache di Dockerfile)
+      #    – env vars dari GitHub Secrets
+      # ─────────────────────────────────────────────
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy pso-conduit-service \
+            --image=${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --platform=managed \
+            --region=${{ secrets.GCP_REGION }} \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=512Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=3 \
+            --set-env-vars="\
+          APP_NAME=Conduit,\
+          APP_ENV=production,\
+          APP_DEBUG=false,\
+          APP_KEY=${{ secrets.APP_KEY }},\
+          APP_URL=${{ secrets.APP_URL }},\
+          LOG_CHANNEL=stderr,\
+          LOG_LEVEL=warning,\
+          DB_CONNECTION=sqlite,\
+          DB_DATABASE=/var/www/html/conduit.sqlite,\
+          DB_FOREIGN_KEYS=true,\
+          CACHE_DRIVER=file,\
+          SESSION_DRIVER=file,\
+          QUEUE_CONNECTION=sync,\
+          FILESYSTEM_DISK=local"
+
+      # ─────────────────────────────────────────────
+      # 7. Print deployed service URL
+      # ─────────────────────────────────────────────
+      - name: Get Service URL
+        run: |
+          gcloud run services describe pso-conduit-service \
+            --platform=managed \
+            --region=${{ secrets.GCP_REGION }} \
+            --format='value(status.url)'
