@@ -51,8 +51,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
-# Storage & cache permissions
-RUN mkdir -p storage/framework/{sessions,views,cache} \
+# Storage & cache permissions (explicit mkdir — brace expansion not supported in /bin/sh)
+RUN mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p storage/framework/cache \
     && mkdir -p storage/logs \
     && mkdir -p bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
