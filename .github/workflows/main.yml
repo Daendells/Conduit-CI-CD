@@ -73,6 +73,9 @@ jobs:
         run: |
           PROJECT_ID=$(printf '%s' "${GCP_PROJECT_ID}" | tr -d '[:space:]')
           REPO=$(printf '%s' "${ARTIFACT_REPO}" | tr -d '[:space:]')
+          CLEAN_APP_KEY=$(printf '%s' "${APP_KEY}" | tr -d '\n\r')
+          CLEAN_APP_URL=$(printf '%s' "${APP_URL}" | tr -d '[:space:]')
+          CLEAN_MONGODB_URI=$(printf '%s' "${MONGODB_URI}" | tr -d '\n\r')
           IMAGE_NAME="asia-southeast2-docker.pkg.dev/${PROJECT_ID}/${REPO}/pso"
           gcloud run deploy pso-conduit-service \
             --image="${IMAGE_NAME}:${GITHUB_SHA}" \
@@ -84,7 +87,7 @@ jobs:
             --cpu=1 \
             --min-instances=0 \
             --max-instances=3 \
-            --set-env-vars="APP_NAME=Conduit,APP_ENV=production,APP_DEBUG=false,APP_KEY=${APP_KEY},APP_URL=${APP_URL},LOG_CHANNEL=stderr,LOG_LEVEL=warning,DB_CONNECTION=mongodb,MONGODB_URI=${MONGODB_URI},MONGODB_DATABASE=conduit,CACHE_DRIVER=file,SESSION_DRIVER=file,QUEUE_CONNECTION=sync,FILESYSTEM_DISK=local"
+            --set-env-vars "^|^APP_NAME=Conduit|APP_ENV=production|APP_DEBUG=true|APP_KEY=${CLEAN_APP_KEY}|APP_URL=${CLEAN_APP_URL}|LOG_CHANNEL=stderr|LOG_LEVEL=warning|DB_CONNECTION=mongodb|MONGODB_URI=${CLEAN_MONGODB_URI}|MONGODB_DATABASE=conduit|CACHE_DRIVER=file|SESSION_DRIVER=file|QUEUE_CONNECTION=sync|FILESYSTEM_DISK=local"
 
       # ─────────────────────────────────────────────
       # 7. Print deployed service URL
