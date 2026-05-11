@@ -27,6 +27,9 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libssl-dev \
     pkg-config \
+    autoconf \
+    gcc \
+    make \
     && docker-php-ext-install zip pdo pdo_mysql \
     && pecl install mongodb \
     && docker-php-ext-enable mongodb \
@@ -46,7 +49,7 @@ COPY --from=node_builder /app/public/build ./public/build
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # Apache config
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
