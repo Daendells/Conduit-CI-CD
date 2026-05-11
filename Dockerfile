@@ -51,6 +51,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
+# Storage & cache permissions
+RUN mkdir -p storage/framework/{sessions,views,cache} \
+    && mkdir -p storage/logs \
+    && mkdir -p bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
 # Apache config
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
@@ -65,6 +72,10 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' \
 RUN sed -i 's/80/8080/g' /etc/apache2/ports.conf
 RUN sed -i 's/:80/:8080/g' /etc/apache2/sites-available/000-default.conf
 
+# Copy and set entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 8080
 
-CMD ["apache2-foreground"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

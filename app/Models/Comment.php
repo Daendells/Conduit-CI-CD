@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
     use HasFactory;
-    
+
+    protected $connection = 'mongodb';
+
     protected $fillable = [
         'user_id',
         'body'
@@ -16,8 +18,6 @@ class Comment extends Model
 
     /**
      * Comment's article.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Article, self>
      */
     public function article()
     {
@@ -26,8 +26,6 @@ class Comment extends Model
 
     /**
      * Comment's user.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, self>
      */
     public function user()
     {

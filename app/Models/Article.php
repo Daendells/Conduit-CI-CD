@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Article extends Model
 {
     use HasFactory;
-    
+
+    protected $connection = 'mongodb';
+
     protected $fillable = [
         'user_id',
         'title',
@@ -34,19 +33,19 @@ class Article extends Model
     /**
      * Scope articles to favored by a user.
      */
-    public function scopeFavoritedByUser(Builder $query, string $username): Builder
+    public function scopeFavoritedByUser($query, string $username): mixed
     {
-        return $query->whereHas('favoritedUsers', function (Builder $builder) use ($username) {
+        return $query->whereHas('favoritedUsers', function ($builder) use ($username) {
             $builder->where('username', $username);
         });
     }
 
     /**
-     * Scope articles to favored by a user.
+     * Scope articles to authors followed by a user.
      */
-    public function scopeOfAuthorsFollowedByUser(Builder $query, User $user): Builder
+    public function scopeOfAuthorsFollowedByUser($query, User $user): mixed
     {
-        return $query->whereHas('user', function (Builder $builder) use ($user) {
+        return $query->whereHas('user', function ($builder) use ($user) {
             $builder->whereIn('id', $user->followings->pluck('id'));
         });
     }
@@ -56,22 +55,19 @@ class Article extends Model
      */
     public function attachTags(array $tags): void
     {
-        $tagIDs = [];
+        $tagIds = [];
         foreach ($tags as $tagName) {
-            $tag = Tag::firstOrCreate([
-                'name' => $tagName,
-            ]);
-
-            $tagIDs[] = $tag->id;
+            $tag = Tag::firstOrCreate(['name' => $tagName]);
+            $tagIds[] = $tag->id;
         }
 
-        $this->tags()->sync($tagIDs);
+        $this->tags()->sync($tagIds);
     }
 
     /**
      * Article user.
      */
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
@@ -79,15 +75,15 @@ class Article extends Model
     /**
      * Article tags.
      */
-    public function tags(): BelongsToMany
+    public function tags()
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(Tag::class, null, 'article_ids', 'tag_ids');
     }
 
     /**
      * Get comments for article.
      */
-    public function comments(): HasMany
+    public function comments()
     {
         return $this->hasMany(Comment::class);
     }
@@ -95,9 +91,9 @@ class Article extends Model
     /**
      * Get users that favorited the article.
      */
-    public function favoritedUsers(): BelongsToMany
+    public function favoritedUsers()
     {
-        return $this->belongsToMany(User::class, 'article_favorite');
+        return $this->belongsToMany(User::class, null, 'favorite_article_ids', 'favorite_user_ids');
     }
 
     public function getRouteKeyName(): string

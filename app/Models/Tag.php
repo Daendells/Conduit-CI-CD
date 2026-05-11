@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use App\Models\Article;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Tag extends Model
 {
     use HasFactory;
-    
+
+    protected $connection = 'mongodb';
+
     protected $fillable = [
         'name'
     ];
@@ -20,19 +20,29 @@ class Tag extends Model
      */
     public function articles()
     {
-        return $this->belongsToMany(Article::class);
+        return $this->belongsToMany(Article::class, null, 'tag_ids', 'article_ids');
     }
 
+    /**
+     * Get most popular tags by article count.
+     * Uses MongoDB aggregation instead of SQL JOIN.
+     */
     public static function favoriteTags($count = 5)
     {
-        $tags = self::select('id', 'name', DB::raw('COUNT(tag_id) as favorite_count'))
-            ->join('article_tag', 'tags.id', '=', 'article_tag.tag_id')
-            ->groupBy('tags.id')
-            ->orderBy('favorite_count', 'DESC')
-            ->limit($count)
-            ->get();
-
-        return $tags;
+        return self::raw(function ($collection) use ($count) {
+            return $collection->aggregate([
+                [
+                    '$project' => [
+                        'name' => 1,
+                        'article_count' => [
+                            '$size' => ['$ifNull' => ['$article_ids', []]]
+                        ]
+                    ]
+                ],
+                ['$sort' => ['article_count' => -1]],
+                ['$limit' => $count],
+            ]);
+        });
     }
 
     public function getRouteKeyName()
