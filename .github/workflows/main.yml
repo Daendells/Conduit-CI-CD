@@ -2,7 +2,7 @@ name: Build & Deploy to Cloud Run
 
 on:
   push:
-    branches: [Fachreza28-patch-1]
+    branches: [main]
 
 env:
   IMAGE_NAME: asia-southeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/pso
@@ -52,8 +52,7 @@ jobs:
           docker build \
             --tag ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --tag ${{ env.IMAGE_NAME }}:latest \
-            --file Dockerfile \
-            .
+            --file Dockerfile .
 
           docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
           docker push ${{ env.IMAGE_NAME }}:latest
