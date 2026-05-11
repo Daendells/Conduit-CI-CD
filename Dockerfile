@@ -18,14 +18,19 @@ RUN npm run build
 # =========================
 FROM php:8.2-apache
 
-# Install dependencies
+# Install dependencies + MongoDB PHP extension
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
     zip \
     curl \
     libzip-dev \
-    && docker-php-ext-install zip pdo pdo_mysql
+    libssl-dev \
+    pkg-config \
+    && docker-php-ext-install zip pdo pdo_mysql \
+    && pecl install mongodb \
+    && docker-php-ext-enable mongodb \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache rewrite
 RUN a2enmod rewrite
