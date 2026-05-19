@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use MongoDB\Laravel\Eloquent\Auth\User as Authenticatable;
+use MongoDB\Laravel\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
