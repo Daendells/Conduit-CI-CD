@@ -38,6 +38,7 @@ Route::post('/sign-in', [SignInController::class, 'signIn'])->middleware('guest'
 Route::get('/logout', [SignInController::class, 'logout'])->middleware('auth');
 
 Route::get('/sign-up', [SignUpController::class, 'index'])->middleware('guest');
+Route::post('/sign-up', [SignUpController::class, 'signUp'])->middleware('guest');
 
 Route::get('/articles/{article}', [ArticleController::class, 'show']);
 
