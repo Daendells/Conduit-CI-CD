@@ -17,3 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Health check endpoint for monitoring (e.g., Grafana)
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok'
+    ]);
+});
