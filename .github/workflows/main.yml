@@ -8,9 +8,15 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  deploy:
-    name: Run tests, Build, Push & Deploy
+  # ─────────────────────────────────────────────────────────────────
+  # JOB 1: Jalankan PHPUnit test
+  # Menggunakan Docker container agar environment sama dengan
+  # production (tidak ada konflik ext-mongodb di runner)
+  # ─────────────────────────────────────────────────────────────────
+  test:
+    name: Run PHPUnit Tests
     runs-on: ubuntu-latest
+
     services:
       mongodb:
         image: mongo:7.0
@@ -21,6 +27,64 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
+    container:
+      image: php:8.2-cli
+      options: --user root
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies & ext-mongodb
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq git unzip libssl-dev pkg-config autoconf gcc make zip
+          yes '' | pecl install mongodb-1.21.3
+          echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/ext-mongodb.ini
+          php -m | grep -i mongodb
+
+      - name: Install Composer
+        run: |
+          curl -sS https://getcomposer.org/installer | php
+          mv composer.phar /usr/local/bin/composer
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Prepare environment for tests
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi --force
+
+      - name: Run PHPUnit tests
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mongodb
+          MONGODB_URI: mongodb://mongodb:27017
+          MONGODB_DATABASE: conduit
+          CACHE_DRIVER: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+          MAIL_MAILER: array
+        run: php artisan test --no-tty
+
+  # ─────────────────────────────────────────────────────────────────
+  # JOB 2: Build Docker image & Deploy ke Cloud Run
+  # Hanya berjalan jika job test berhasil (needs: test)
+  # ─────────────────────────────────────────────────────────────────
+  deploy:
+    name: Build, Push & Deploy
+    runs-on: ubuntu-latest
+    needs: test
 
     steps:
       # ─────────────────────────────────────────────
@@ -54,48 +118,7 @@ jobs:
           gcloud auth configure-docker asia-southeast2-docker.pkg.dev --quiet
 
       # ─────────────────────────────────────────────
-      # 5. Setup PHP and install test dependencies
-      # ─────────────────────────────────────────────
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mongodb
-          coverage: none
-
-      - name: Cache Composer packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.composer/cache
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Install Composer dependencies
-        # --ignore-platform-req=ext-mongodb: runner & Dockerfile sama-sama pakai
-        # ext-mongodb 2.x (latest). Composer lock mencatat ^1.x di metadata paket
-        # lama, tapi kode aktualnya kompatibel. Flag ini skip cek versi extension.
-        run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-req=ext-mongodb
-
-      - name: Prepare environment for tests
-        run: |
-          cp .env.example .env
-          php artisan key:generate --ansi --force
-
-      - name: Run PHPUnit tests
-        env:
-          APP_ENV: testing
-          DB_CONNECTION: mongodb
-          MONGODB_URI: mongodb://127.0.0.1:27017
-          MONGODB_DATABASE: conduit
-          CACHE_DRIVER: array
-          SESSION_DRIVER: array
-          QUEUE_CONNECTION: sync
-          MAIL_MAILER: array
-        run: php artisan test --no-tty
-
-      # ─────────────────────────────────────────────
-      # 6. Build Docker image (multi-stage: Vite + PHP)
+      # 5. Build Docker image (multi-stage: Vite + PHP)
       #    and push to Artifact Registry
       # ─────────────────────────────────────────────
       - name: Build & Push Docker Image
@@ -112,7 +135,7 @@ jobs:
           docker push "${IMAGE_NAME}:latest"
 
       # ─────────────────────────────────────────────
-      # 7. Deploy to Cloud Run
+      # 6. Deploy to Cloud Run
       #    – port 8080 (Apache di Dockerfile)
       #    – env vars dari GitHub Secrets
       # ─────────────────────────────────────────────
@@ -144,7 +167,7 @@ jobs:
             --set-env-vars "^|^APP_NAME=Conduit|APP_ENV=production|APP_DEBUG=false|APP_KEY=${CLEAN_APP_KEY}|APP_URL=${CLEAN_APP_URL}|LOG_CHANNEL=stderr|LOG_LEVEL=debug|DB_CONNECTION=mongodb|MONGODB_URI=${CLEAN_MONGODB_URI}|MONGODB_DATABASE=conduit|CACHE_DRIVER=array|SESSION_DRIVER=cookie|QUEUE_CONNECTION=sync|FILESYSTEM_DISK=local"
 
       # ─────────────────────────────────────────────
-      # 8. Print deployed service URL
+      # 7. Print deployed service URL
       # ─────────────────────────────────────────────
       - name: Get Service URL
         env:
