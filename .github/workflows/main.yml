@@ -62,11 +62,11 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libssl-dev
+          sudo apt-get install -y pkg-config libssl-dev autoconf gcc make
 
       - name: Install MongoDB PHP extension
         run: |
-          yes '' | pecl install mongodb
+          yes '' | sudo pecl install mongodb
           echo "extension=mongodb.so" >> $GITHUB_ENV
 
       - name: Cache Composer packages
