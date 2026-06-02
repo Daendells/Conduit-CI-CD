@@ -5,8 +5,70 @@ on:
     branches: [main]
 
 jobs:
+  test:
+    name: Run PHPUnit tests
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'" \
+          --health-interval 10s \
+          --health-timeout 5s \
+          --health-retries 5
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: mongodb
+      MONGODB_URI: mongodb://127.0.0.1:27017
+      MONGODB_DATABASE: conduit
+      CACHE_DRIVER: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v3
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libssl-dev
+
+      - name: Install MongoDB PHP extension
+        run: |
+          yes '' | pecl install mongodb
+          echo "extension=mongodb.so" >> $GITHUB_ENV
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi --force
+
+      - name: Run tests
+        run: php artisan test --no-tty
+
   deploy:
     name: Build, Push & Deploy
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
