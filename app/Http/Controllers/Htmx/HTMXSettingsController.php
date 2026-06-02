@@ -32,7 +32,7 @@ class HTMXSettingsController extends Controller
         $validated = $request->safe()->all();
 
         $data = [
-            'image_url' => $validated['image_url'],
+            'image' => $validated['image_url'],
             'name' => $validated['name'],
             'email' => $validated['email'],
             'bio' => $validated['bio']

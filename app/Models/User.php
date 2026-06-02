@@ -22,7 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'username'
+        'username',
+        'bio',
+        'image'
     ];
 
     /**
@@ -137,5 +139,13 @@ class User extends Authenticatable
         }
 
         return $isFollowing;
+    }
+
+    /**
+     * Get the user's image, providing a default if none is set.
+     */
+    public function getImageAttribute($value)
+    {
+        return $value ?: 'https://api.realworld.io/images/smiley-cyrus.jpeg';
     }
 }

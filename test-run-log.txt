@@ -1,0 +1,49 @@
+﻿
+  [37;44m INFO [39;49m Application key set successfully.  
+
+
+   PASS  Tests\Unit\ArticleModelTest
+  Γ£ô toggle user favorite updates favorite status                         0.20s  
+
+   PASS  Tests\Unit\ExampleTest
+  Γ£ô that true is true                                                    0.01s  
+
+   PASS  Tests\Unit\TagModelTest
+  Γ£ô favorite tags returns sorted results by article count                0.02s  
+
+   PASS  Tests\Unit\UserModelTest
+  Γ£ô toggle follow user updates relationship                              0.02s  
+  Γ£ô is self attribute returns true for logged in user                    0.02s  
+
+   PASS  Tests\Feature\ArticleTest
+  Γ£ô article show page is accessible                                      0.74s  
+  Γ£ô authenticated user can favorite article                              0.02s  
+  Γ£ô authenticated user can post comment                                  0.55s  
+  Γ£ô authenticated user can delete article                                0.21s  
+
+   PASS  Tests\Feature\AuthTest
+  Γ£ô sign up page is accessible                                           0.16s  
+  Γ£ô user can register                                                    0.37s  
+  Γ£ô sign in page is accessible                                           0.10s  
+  Γ£ô user can login with correct credentials                              0.07s  
+  Γ£ô invalid sign in returns error                                        0.02s  
+  Γ£ô authenticated user can logout                                        0.03s  
+
+   PASS  Tests\Feature\ExampleTest
+  Γ£ô the application returns a successful response                        0.11s  
+
+   PASS  Tests\Feature\HealthCheckTest
+  Γ£ô api health endpoint is ok                                            0.01s  
+
+   PASS  Tests\Feature\ProfileTest
+  Γ£ô user profile page is accessible                                      0.17s  
+  Γ£ô user favorites page is accessible                                    0.02s  
+  Γ£ô authenticated user can follow and unfollow another user              0.02s  
+
+   PASS  Tests\Feature\TagFeedTest
+  Γ£ô tag feed page is accessible                                          0.01s  
+  Γ£ô authenticated user can access your feed                              0.01s  
+
+  Tests:    22 passed (59 assertions)
+  Duration: 3.05s
+
