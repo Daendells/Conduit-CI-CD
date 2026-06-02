@@ -23,7 +23,8 @@ class ArticleModelExtendedTest extends TestCase
         // with the non-static instance method favoritedByUser(User $user)
         $results = Article::query()->favoritedByUser($user->username)->get();
 
-        $this->assertTrue($results->contains('id', $article->id));
+        // Use slug (string) for comparison to avoid MongoDB ObjectId mismatch
+        $this->assertTrue($results->contains('slug', $article->slug));
     }
 
     public function test_scope_favorited_by_user_excludes_non_favorited(): void
@@ -34,7 +35,7 @@ class ArticleModelExtendedTest extends TestCase
         // otherArticle is NOT favorited by $user
         $results = Article::query()->favoritedByUser($user->username)->get();
 
-        $this->assertFalse($results->contains('id', $otherArticle->id));
+        $this->assertFalse($results->contains('slug', $otherArticle->slug));
     }
 
     public function test_scope_of_authors_followed_by_user(): void
@@ -48,7 +49,8 @@ class ArticleModelExtendedTest extends TestCase
         // Use fresh() so the followings relation is reloaded from DB
         $results = Article::ofAuthorsFollowedByUser($follower->fresh())->get();
 
-        $this->assertTrue($results->contains('id', $article->id));
+        // Use slug (string) for comparison to avoid MongoDB ObjectId type mismatch
+        $this->assertTrue($results->contains('slug', $article->slug));
     }
 
     public function test_scope_of_authors_followed_by_user_excludes_non_followed(): void
@@ -60,7 +62,7 @@ class ArticleModelExtendedTest extends TestCase
         // follower does NOT follow stranger
         $results = Article::ofAuthorsFollowedByUser($follower)->get();
 
-        $this->assertFalse($results->contains('id', $otherArticle->id));
+        $this->assertFalse($results->contains('slug', $otherArticle->slug));
     }
 
     public function test_attach_tags_creates_and_links_tags(): void
