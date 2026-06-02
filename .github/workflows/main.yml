@@ -50,11 +50,6 @@ jobs:
         run: |
           gcloud auth configure-docker asia-southeast2-docker.pkg.dev --quiet
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pkg-config libssl-dev autoconf gcc make
-
       # ─────────────────────────────────────────────
       # 5. Setup PHP and install test dependencies
       # ─────────────────────────────────────────────
@@ -62,14 +57,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: mongodb
           coverage: none
-
-      - name: Install MongoDB PHP extension
-        run: |
-          if ! php -m | grep -qi '^mongodb$'; then
-            yes '' | sudo pecl install mongodb-1.21.3
-          fi
-          echo "extension=mongodb.so" >> $GITHUB_ENV
 
       - name: Cache Composer packages
         uses: actions/cache@v4
@@ -80,7 +69,7 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+        run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Prepare environment for tests
         run: |
@@ -146,7 +135,7 @@ jobs:
             --cpu=1 \
             --min-instances=0 \
             --max-instances=3 \
-            --set-env-vars "^|^APP_NAME=Conduit|APP_ENV=production|APP_DEBUG=true|APP_KEY=${CLEAN_APP_KEY}|APP_URL=${CLEAN_APP_URL}|LOG_CHANNEL=stderr|LOG_LEVEL=debug|DB_CONNECTION=mongodb|MONGODB_URI=${CLEAN_MONGODB_URI}|MONGODB_DATABASE=conduit|CACHE_DRIVER=array|SESSION_DRIVER=cookie|QUEUE_CONNECTION=sync|FILESYSTEM_DISK=local"
+            --set-env-vars "^|^APP_NAME=Conduit|APP_ENV=production|APP_DEBUG=false|APP_KEY=${CLEAN_APP_KEY}|APP_URL=${CLEAN_APP_URL}|LOG_CHANNEL=stderr|LOG_LEVEL=debug|DB_CONNECTION=mongodb|MONGODB_URI=${CLEAN_MONGODB_URI}|MONGODB_DATABASE=conduit|CACHE_DRIVER=array|SESSION_DRIVER=cookie|QUEUE_CONNECTION=sync|FILESYSTEM_DISK=local"
 
       # ─────────────────────────────────────────────
       # 8. Print deployed service URL
