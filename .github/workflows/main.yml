@@ -42,6 +42,8 @@ jobs:
           apt-get install -y -qq git unzip libssl-dev pkg-config autoconf gcc make zip
           yes '' | pecl install mongodb-1.21.5
           echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/ext-mongodb.ini
+          pecl install pcov
+          echo "extension=pcov.so" > /usr/local/etc/php/conf.d/ext-pcov.ini
           php -r "echo 'ext-mongodb: ' . phpversion('mongodb') . PHP_EOL;"
 
       - name: Install Composer
@@ -75,7 +77,7 @@ jobs:
           SESSION_DRIVER: array
           QUEUE_CONNECTION: sync
           MAIL_MAILER: array
-        run: php artisan test --without-tty
+        run: php artisan test --without-tty --coverage
 
   # ─────────────────────────────────────────────────────────────────
   # JOB 2: Build Docker image & Deploy ke Cloud Run
