@@ -27,7 +27,7 @@ class SettingUpdateRequest extends FormRequest
         return [
             'image_url' => 'nullable',
             'name' => 'required',
-            'email' => ['required', Rule::unique('users', 'email')->ignore(auth()->user()->id)],
+            'email' => ['required', Rule::unique('users', 'email')->ignore(auth()->user()->id, '_id')],
             'bio' => 'nullable',
             'password' => 'nullable'
         ];
