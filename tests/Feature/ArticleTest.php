@@ -18,6 +18,34 @@ class ArticleTest extends TestCase
         $response->assertViewIs('articles.detail');
     }
 
+    public function test_article_show_page_as_authenticated_user(): void
+    {
+        $user    = User::factory()->create();
+        $article = Article::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->get('/articles/' . $article->slug);
+
+        $response->assertStatus(200);
+        $response->assertViewIs('articles.detail');
+        $response->assertViewHas('is_favorited');
+    }
+
+    public function test_article_show_page_shows_favorited_status_for_auth_user(): void
+    {
+        $user    = User::factory()->create();
+        $article = Article::factory()->create();
+        $article->toggleUserFavorite($user);
+
+        $this->actingAs($user);
+
+        $response = $this->get('/articles/' . $article->slug);
+
+        $response->assertStatus(200);
+        $response->assertViewHas('is_favorited', true);
+    }
+
     public function test_authenticated_user_can_favorite_article(): void
     {
         $user = User::factory()->create();
@@ -45,8 +73,8 @@ class ArticleTest extends TestCase
         $response->assertStatus(200);
         $this->assertDatabaseHas('comments', [
             'article_id' => $article->id,
-            'user_id' => $user->id,
-            'body' => 'This is a test comment.',
+            'user_id'    => $user->id,
+            'body'       => 'This is a test comment.',
         ]);
     }
 

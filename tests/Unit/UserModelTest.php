@@ -30,4 +30,40 @@ class UserModelTest extends TestCase
 
         $this->assertTrue($user->isSelf);
     }
+
+    public function test_is_self_attribute_returns_false_when_not_logged_in(): void
+    {
+        $user = User::factory()->create();
+
+        // Not authenticated
+        $this->assertFalse($user->isSelf);
+    }
+
+    public function test_is_self_attribute_returns_false_for_different_user(): void
+    {
+        $userA = User::factory()->create();
+        $userB = User::factory()->create();
+
+        auth()->login($userA);
+
+        $this->assertFalse($userB->isSelf);
+    }
+
+    public function test_get_image_attribute_returns_default_when_null(): void
+    {
+        $user = User::factory()->create(['image' => null]);
+
+        $this->assertEquals(
+            'https://api.realworld.io/images/smiley-cyrus.jpeg',
+            $user->image
+        );
+    }
+
+    public function test_get_image_attribute_returns_set_value(): void
+    {
+        $imageUrl = 'https://example.com/my-avatar.png';
+        $user     = User::factory()->create(['image' => $imageUrl]);
+
+        $this->assertEquals($imageUrl, $user->image);
+    }
 }
