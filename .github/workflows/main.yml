@@ -66,7 +66,9 @@ jobs:
 
       - name: Install MongoDB PHP extension
         run: |
-          yes '' | sudo pecl install mongodb
+          if ! php -m | grep -qi '^mongodb$'; then
+            yes '' | sudo pecl install mongodb
+          fi
           echo "extension=mongodb.so" >> $GITHUB_ENV
 
       - name: Cache Composer packages
