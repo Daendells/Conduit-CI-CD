@@ -40,9 +40,9 @@ jobs:
         run: |
           apt-get update -qq
           apt-get install -y -qq git unzip libssl-dev pkg-config autoconf gcc make zip
-          yes '' | pecl install mongodb-1.21.3
+          yes '' | pecl install mongodb
           echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/ext-mongodb.ini
-          php -m | grep -i mongodb
+          php -r "echo 'ext-mongodb: ' . phpversion('mongodb') . PHP_EOL;"
 
       - name: Install Composer
         run: |
@@ -58,7 +58,10 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        # composer.lock mencatat ext-mongodb ^1.x (metadata lama),
+        # tapi app berjalan dengan ext-mongodb 2.x (sama seperti Dockerfile production).
+        # --ignore-platform-req bypass cek versi metadata saja, tidak ubah runtime.
+        run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-req=ext-mongodb
 
       - name: Prepare environment for tests
         run: |
