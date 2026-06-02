@@ -60,8 +60,20 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mongodb-1.21.3
+          extensions: :mongodb
           coverage: none
+
+      - name: Install ext-mongodb 1.21.3 (downgrade from pre-installed 2.x)
+        run: |
+          # Hapus semua config mongodb yang mungkin memuat versi 2.x
+          sudo rm -f /etc/php/8.2/cli/conf.d/20-mongodb.ini
+          sudo rm -f /etc/php/8.2/mods-available/mongodb.ini
+          # Install versi 1.21.3 yang kompatibel dengan composer.lock
+          sudo pecl install -f mongodb-1.21.3
+          # Aktifkan extension baru
+          echo "extension=mongodb.so" | sudo tee /etc/php/8.2/cli/conf.d/20-mongodb.ini
+          # Verifikasi versi yang terpasang
+          php -r "echo 'ext-mongodb version: ' . phpversion('mongodb') . PHP_EOL;"
 
       - name: Cache Composer packages
         uses: actions/cache@v4
