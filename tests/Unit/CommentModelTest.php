@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Models\Article;
-use App\Models\Comment;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -16,11 +15,11 @@ class CommentModelTest extends TestCase
     {
         $user    = User::factory()->create();
         $article = Article::factory()->create();
-        $comment = Comment::factory()->create([
-            'user_id' => $user->id,
-        ]);
 
-        $article->comments()->save($comment);
+        $comment = $article->comments()->create([
+            'user_id' => $user->id,
+            'body'    => 'A test comment',
+        ]);
 
         $this->assertInstanceOf(Article::class, $comment->fresh()->article);
     }
