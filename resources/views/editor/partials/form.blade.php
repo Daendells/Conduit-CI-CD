@@ -16,30 +16,34 @@
 
           hx-target="#app-body"
         >
-          <fieldset class="form-group">
-            <input type="text" name="title" class="form-control form-control-lg" placeholder="Post Title"
-              @if (isset($article))
-                value="{{ $article->title }}"
-              @endif
-            >
-          </fieldset>
-          <fieldset class="form-group">
-            <input type="text" name="description" class="form-control form-control-md" placeholder="What's this article about?"
-              @if (isset($article))
-                value="{{ $article->description }}"
-              @endif
-            >
-          </fieldset>
-          <fieldset class="form-group">
-            <textarea rows="8" name="content" class="form-control" placeholder="Write your post (in markdown)">@if (isset($article)){{ $article->body }}@endif</textarea>
-          </fieldset>
-          <fieldset class="form-group">
-            <input type="text" name="tags" class="form-control tagify--outside" placeholder="Enter tags"
-              @if (isset($article))
-                value="{{ $article->tags->pluck('name') }}"
-              @endif
-            >
-          </fieldset>
+          <div class="card article-form-card">
+            <div class="card-block">
+              <fieldset class="form-group">
+                <input type="text" name="title" class="form-control form-control-lg" placeholder="Post Title"
+                  @if (isset($article))
+                    value="{{ $article->title }}"
+                  @endif
+                >
+              </fieldset>
+              <fieldset class="form-group">
+                <input type="text" name="description" class="form-control form-control-md" placeholder="What's this article about?"
+                  @if (isset($article))
+                    value="{{ $article->description }}"
+                  @endif
+                >
+              </fieldset>
+              <fieldset class="form-group">
+                <textarea rows="8" name="content" class="form-control" placeholder="Write your post (in markdown)">@if (isset($article)){{ $article->body }}@endif</textarea>
+              </fieldset>
+              <fieldset class="form-group article-form-last">
+                <input type="text" name="tags" class="form-control tagify--outside" placeholder="Enter tags"
+                  @if (isset($article))
+                    value="{{ $article->tags->pluck('name') }}"
+                  @endif
+                >
+              </fieldset>
+            </div>
+          </div>
           <button class="btn btn-lg btn-primary pull-xs-right">
             Publish Article
           </button>

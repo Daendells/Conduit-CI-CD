@@ -26,6 +26,28 @@
       }
 
       .tagify__input { border-radius: 4px; margin: 0; padding: 10px 12px; }
+
+      /* Article editor — single unified card border */
+      .article-form-card {
+        border: 1px solid rgba(0,0,0,.2);
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      }
+      .article-form-card .card-block {
+        padding: 0;
+      }
+      .article-form-card .form-group {
+        margin-bottom: 0;
+        border-bottom: 1px solid rgba(0,0,0,.1);
+      }
+      .article-form-card .form-group.article-form-last {
+        border-bottom: none;
+      }
+      .article-form-card .form-control {
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
     </style>
 
     <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">
