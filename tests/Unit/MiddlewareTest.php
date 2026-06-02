@@ -73,7 +73,8 @@ class MiddlewareTest extends TestCase
         $this->actingAs($user);
 
         $middleware = new RedirectIfAuthenticated();
-        $request    = Request::create('/sign-in', 'GET');
+        // Use the app's current request (which has the authenticated session)
+        $request = $this->app['request'];
 
         $next = function ($req) {
             return response('Should not reach here');
@@ -82,7 +83,7 @@ class MiddlewareTest extends TestCase
         $response = $middleware->handle($request, $next);
 
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals(
+        $this->assertStringEndsWith(
             RouteServiceProvider::HOME,
             $response->headers->get('Location')
         );

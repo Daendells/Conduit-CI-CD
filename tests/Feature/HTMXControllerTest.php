@@ -569,9 +569,10 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        // Include HTTP_REFERER with the username to trigger the isDeleteItem branch
+        // Include Referer header with the username to trigger the isDeleteItem branch
+        // Laravel test helpers pass 'Referer' which becomes HTTP_REFERER in server superglobal
         $response = $this->withHeaders([
-            'HTTP_REFERER' => 'http://localhost/users/' . $user->username,
+            'Referer' => 'http://localhost/users/' . $user->username,
         ])->post('/htmx/users/articles/' . $article->slug . '/favorite');
 
         $response->assertStatus(200);

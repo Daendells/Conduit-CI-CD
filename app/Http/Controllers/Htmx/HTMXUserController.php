@@ -94,7 +94,7 @@ class HTMXUserController extends Controller
         }
 
         // check if the current user are executing this function
-        if (str_contains(request()->server()['HTTP_REFERER'], auth()->user()->username)) {
+        if (str_contains(request()->server('HTTP_REFERER', ''), auth()->user()->username)) {
             $isDeleteItem = true;
         }
 
