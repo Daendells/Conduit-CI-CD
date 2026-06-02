@@ -63,7 +63,13 @@ jobs:
         with:
           php-version: '8.2'
           coverage: none
-          pecl: mongodb
+
+      - name: Install MongoDB PHP extension
+        run: |
+          if ! php -m | grep -qi '^mongodb$'; then
+            yes '' | sudo pecl install mongodb-1.21.3
+          fi
+          echo "extension=mongodb.so" >> $GITHUB_ENV
 
       - name: Cache Composer packages
         uses: actions/cache@v4
