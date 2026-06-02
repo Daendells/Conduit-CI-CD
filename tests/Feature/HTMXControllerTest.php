@@ -234,9 +234,10 @@ class HTMXControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        $uid      = uniqid('tag_');
         $tagsJson = json_encode([
-            (object)['value' => 'laravel'],
-            (object)['value' => 'php'],
+            (object)['value' => 'laravel-' . $uid],
+            (object)['value' => 'php-' . $uid],
         ]);
 
         $response = $this->post('/htmx/editor', [
@@ -306,8 +307,9 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
+        $uid      = uniqid('tag_');
         $tagsJson = json_encode([
-            (object)['value' => 'updated-tag'],
+            (object)['value' => 'updated-tag-' . $uid],
         ]);
 
         $response = $this->post('/htmx/editor/' . $article->slug, [

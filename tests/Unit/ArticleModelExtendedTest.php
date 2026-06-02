@@ -19,7 +19,9 @@ class ArticleModelExtendedTest extends TestCase
 
         $article->toggleUserFavorite($user);
 
-        $results = Article::favoritedByUser($user->username)->get();
+        // Use query() to route through Builder's __call, avoiding collision
+        // with the non-static instance method favoritedByUser(User $user)
+        $results = Article::query()->favoritedByUser($user->username)->get();
 
         $this->assertTrue($results->contains('id', $article->id));
     }
@@ -30,7 +32,7 @@ class ArticleModelExtendedTest extends TestCase
         $otherArticle = Article::factory()->create();
 
         // otherArticle is NOT favorited by $user
-        $results = Article::favoritedByUser($user->username)->get();
+        $results = Article::query()->favoritedByUser($user->username)->get();
 
         $this->assertFalse($results->contains('id', $otherArticle->id));
     }
@@ -43,7 +45,8 @@ class ArticleModelExtendedTest extends TestCase
 
         $follower->toggleFollowUser($author);
 
-        $results = Article::ofAuthorsFollowedByUser($follower)->get();
+        // Use fresh() so the followings relation is reloaded from DB
+        $results = Article::ofAuthorsFollowedByUser($follower->fresh())->get();
 
         $this->assertTrue($results->contains('id', $article->id));
     }
@@ -63,27 +66,30 @@ class ArticleModelExtendedTest extends TestCase
     public function test_attach_tags_creates_and_links_tags(): void
     {
         $article = Article::factory()->create();
+        $uid     = uniqid('tag_');
 
-        $article->attachTags(['php', 'laravel', 'testing']);
+        $article->attachTags(["php-{$uid}", "laravel-{$uid}", "testing-{$uid}"]);
 
         $tagNames = $article->fresh()->tags->pluck('name')->toArray();
 
-        $this->assertContains('php', $tagNames);
-        $this->assertContains('laravel', $tagNames);
-        $this->assertContains('testing', $tagNames);
+        $this->assertContains("php-{$uid}", $tagNames);
+        $this->assertContains("laravel-{$uid}", $tagNames);
+        $this->assertContains("testing-{$uid}", $tagNames);
     }
 
     public function test_attach_tags_reuses_existing_tags(): void
     {
         $article = Article::factory()->create();
+        $uid     = uniqid('tag_');
+        $tagName = "php-{$uid}";
 
         // Attach once
-        $article->attachTags(['php']);
+        $article->attachTags([$tagName]);
         // Attach again — should not create duplicate
-        $article->attachTags(['php']);
+        $article->attachTags([$tagName]);
 
         $tagNames = $article->fresh()->tags->pluck('name')->toArray();
-        $phpCount = array_count_values($tagNames)['php'] ?? 0;
+        $phpCount = array_count_values($tagNames)[$tagName] ?? 0;
 
         $this->assertEquals(1, $phpCount);
     }

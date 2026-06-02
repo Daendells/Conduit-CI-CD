@@ -82,11 +82,12 @@ class MiddlewareTest extends TestCase
 
         $response = $middleware->handle($request, $next);
 
+        // Verify the middleware issues a redirect (302) for authenticated users
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertStringEndsWith(
-            RouteServiceProvider::HOME,
-            $response->headers->get('Location')
-        );
+        // The Location header should point to the home URL (e.g., 'http://localhost' or 'http://localhost/')
+        $location = $response->headers->get('Location') ?? '';
+        $expectedUrl = rtrim(url(RouteServiceProvider::HOME), '/');
+        $this->assertEquals($expectedUrl, rtrim($location, '/'));
     }
 
     public function test_redirect_if_authenticated_uses_default_guard_when_no_guards_provided(): void
