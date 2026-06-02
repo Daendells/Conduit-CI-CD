@@ -10,6 +10,33 @@ use App\Http\Controllers\Controller;
 
 class HTMXHomeController extends Controller
 {
+    private function applySort($articles)
+    {
+        $sort = request()->query('sort', 'newest');
+
+        if ($sort === 'oldest') {
+            return $articles->orderBy('created_at', 'asc');
+        }
+
+        return $articles->latest();
+    }
+
+    private function appendSortToNavbarItems(array $feedNavbarItems): array
+    {
+        $sort = request()->query('sort');
+
+        if (!$sort) {
+            return $feedNavbarItems;
+        }
+
+        foreach ($feedNavbarItems as &$item) {
+            $item['hx_get_url'] .= '?sort=' . $sort;
+            $item['hx_push_url'] .= (str_contains($item['hx_push_url'], '?') ? '&' : '?') . 'sort=' . $sort;
+        }
+
+        return $feedNavbarItems;
+    }
+
     public function index()
     {
         return view('home.partials.index')
@@ -39,8 +66,10 @@ class HTMXHomeController extends Controller
 
         $feedNavbarItems = Helpers::feedNavbarItems();
         $feedNavbarItems['personal']['is_active'] = true;
+        $feedNavbarItems = $this->appendSortToNavbarItems($feedNavbarItems);
 
-        $articles = $articles->ofAuthorsFollowedByUser(auth()->user())->paginate(5);
+        $articles = $articles->ofAuthorsFollowedByUser(auth()->user());
+        $articles = $this->applySort($articles)->paginate(5);
 
         return view('home.partials.post-preview', ['articles' => $articles])
             .view('home.partials.pagination', [
@@ -59,8 +88,9 @@ class HTMXHomeController extends Controller
 
         $feedNavbarItems = Helpers::feedNavbarItems();
         $feedNavbarItems['global']['is_active'] = true;
+        $feedNavbarItems = $this->appendSortToNavbarItems($feedNavbarItems);
 
-        $articles = $articles->paginate(5);
+        $articles = $this->applySort($articles)->paginate(5);
 
         return view('home.partials.post-preview', ['articles' => $articles])
             .view('home.partials.pagination', [
@@ -78,16 +108,18 @@ class HTMXHomeController extends Controller
         $articles = Article::with(['tags', 'favoritedUsers'])
             ->whereHas('tags', function($q) use ($tag) {
                 $q->where('id', $tag->id);
-            })
-            ->paginate(5);
+            });
 
         $feedNavbarItems = Helpers::feedNavbarItems();
         $feedNavbarItems['tag'] = [
             'title' => $tag->name,
             'is_active' => true,
-            'hx_get_url' => '/htmx/tag-feed',
+            'hx_get_url' => '/htmx/home/tag-feed/' . $tag->name,
             'hx_push_url' => '/tag-feed/' . $tag->name
         ];
+        $feedNavbarItems = $this->appendSortToNavbarItems($feedNavbarItems);
+
+        $articles = $this->applySort($articles)->paginate(5);
 
         return view('home.partials.post-preview', ['articles' => $articles])
             .view('home.partials.pagination', [
