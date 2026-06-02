@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     name: Run tests, Build, Push & Deploy
@@ -57,7 +60,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mongodb
+          extensions: mongodb-1.21.3
           coverage: none
 
       - name: Cache Composer packages
