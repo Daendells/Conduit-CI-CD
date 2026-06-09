@@ -43,11 +43,15 @@ WORKDIR /var/www/html
 # Copy project
 COPY . .
 
+# Ensure static CSS and JS assets are present in the final image
+COPY public/css ./public/css
+COPY public/js ./public/js
+
 # Copy built frontend assets
 COPY --from=node_builder /app/public/build ./public/build
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
