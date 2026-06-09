@@ -13,12 +13,12 @@ class CommentModelTest extends TestCase
 {
     public function test_comment_belongs_to_article(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create();
 
         $comment = $article->comments()->create([
             'user_id' => $user->id,
-            'body'    => 'A test comment',
+            'body' => 'A test comment',
         ]);
 
         $this->assertInstanceOf(Article::class, $comment->fresh()->article);
@@ -26,12 +26,12 @@ class CommentModelTest extends TestCase
 
     public function test_comment_belongs_to_user(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create();
 
         $comment = $article->comments()->create([
             'user_id' => $user->id,
-            'body'    => 'A test comment body',
+            'body' => 'A test comment body',
         ]);
 
         $this->assertInstanceOf(User::class, $comment->fresh()->user);
@@ -40,12 +40,12 @@ class CommentModelTest extends TestCase
 
     public function test_comment_is_created_with_correct_body(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create();
 
         $comment = $article->comments()->create([
             'user_id' => $user->id,
-            'body'    => 'Hello from unit test',
+            'body' => 'Hello from unit test',
         ]);
 
         $this->assertEquals('Hello from unit test', $comment->body);

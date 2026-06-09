@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class EditorStoreArticleRequest extends FormRequest
@@ -30,16 +30,16 @@ class EditorStoreArticleRequest extends FormRequest
             'tags' => 'nullable',
         ];
     }
-    
+
     protected function failedValidation(Validator $validator)
     {
         $response = response()->view('components.form-error-message', [
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ])
-        ->withHeaders([
-            'HX-Reswap' => 'innerHTML show:top',
-            'HX-Retarget' => '#form-message'
-        ]);
+            ->withHeaders([
+                'HX-Reswap' => 'innerHTML show:top',
+                'HX-Retarget' => '#form-message',
+            ]);
 
         throw new HttpResponseException($response);
     }

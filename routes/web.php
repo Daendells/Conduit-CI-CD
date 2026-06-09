@@ -1,20 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\EditorController;
-use App\Http\Controllers\SignInController;
-use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\Htmx\HTMXHomeController;
-use App\Http\Controllers\Htmx\HTMXUserController;
+use App\Http\Controllers\EditorController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Htmx\HTMXArticleController;
 use App\Http\Controllers\Htmx\HTMXEditorController;
+use App\Http\Controllers\Htmx\HTMXHomeController;
+use App\Http\Controllers\Htmx\HTMXSettingsController;
 use App\Http\Controllers\Htmx\HTMXSignInController;
 use App\Http\Controllers\Htmx\HTMXSignUpController;
-use App\Http\Controllers\Htmx\HTMXArticleController;
-use App\Http\Controllers\Htmx\HTMXSettingsController;
+use App\Http\Controllers\Htmx\HTMXUserController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SignInController;
+use App\Http\Controllers\SignUpController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,11 +50,11 @@ Route::get('/users/{user}/favorites', [UserController::class, 'favorites']);
 
 Route::get('/settings', [SettingsController::class, 'index'])->middleware('auth');
 
-Route::prefix('htmx')->group(function() {
+Route::prefix('htmx')->group(function () {
 
     Route::get('/home', [HTMXHomeController::class, 'index']);
     Route::post('/home/articles/{article}/favorite', [HTMXHomeController::class, 'favorite']);
-    
+
     Route::get('/articles/{article}', [HTMXArticleController::class, 'show']);
     Route::post('/articles/{article}/favorite', [HTMXArticleController::class, 'favorite']);
     Route::post('/articles/follow-user/{user}', [HTMXArticleController::class, 'follow']);
@@ -72,7 +72,7 @@ Route::prefix('htmx')->group(function() {
     Route::post('/editor', [HTMXEditorController::class, 'store']);
     Route::get('/editor/{article}', [HTMXEditorController::class, 'edit']);
     Route::post('/editor/{article}', [HTMXEditorController::class, 'update']);
-    
+
     Route::get('/popular-tags', [HTMXHomeController::class, 'popularTags']);
 
     Route::get('/sign-in', [HTMXSignInController::class, 'index']);

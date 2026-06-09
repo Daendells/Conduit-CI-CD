@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Htmx;
 
-use App\Models\User;
-use App\Models\Article;
-use App\Support\Helpers;
-use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ArticlePostCommentRequest;
+use App\Models\Article;
+use App\Models\User;
+use App\Support\Helpers;
+use Illuminate\Support\Str;
 
 class HTMXArticleController extends Controller
 {
@@ -23,11 +23,11 @@ class HTMXArticleController extends Controller
         return view('articles.partials.show', [
             'article' => $article,
             'favorite_count' => $article->favoritedUsers->count(),
-            'is_favorited' => $isArticleFavoritedByUser
+            'is_favorited' => $isArticleFavoritedByUser,
         ])
         .view('components.navbar', ['navbar_active' => ''])
         .view('components.htmx.head', [
-            'page_title' => Str::words($article->title, 40, '') . ' —'
+            'page_title' => Str::words($article->title, 40, '').' —',
         ]);
     }
 
@@ -43,7 +43,7 @@ class HTMXArticleController extends Controller
             'article' => $article,
             'favorite_count' => $article->favoritedUsers->count(),
             'is_favorited' => $isArticleFavoritedByUser,
-            'oob_swap' => true
+            'oob_swap' => true,
         ]);
     }
 
@@ -59,7 +59,7 @@ class HTMXArticleController extends Controller
             'user' => $user,
             'is_followed' => $isUserFollowed,
             'follower_count' => $user->followers->count(),
-            'oob_swap' => true
+            'oob_swap' => true,
         ]);
     }
 
@@ -71,7 +71,7 @@ class HTMXArticleController extends Controller
 
         return view('articles.partials.comments-wrapper', [
             'article' => $article,
-            'comments' => $comments
+            'comments' => $comments,
         ]);
     }
 
@@ -81,15 +81,15 @@ class HTMXArticleController extends Controller
 
         $comment = $article->comments()->create([
             'user_id' => auth()->user()->id,
-            'body' => $validated['comment']
+            'body' => $validated['comment'],
         ]);
 
         return view('articles.partials.comment-card', [
-            'comment' => $comment
+            'comment' => $comment,
         ])
         .view('articles.partials.comment-form', [
             'article' => $article,
-            'oob_swap' => true
+            'oob_swap' => true,
         ]);
     }
 
@@ -102,12 +102,12 @@ class HTMXArticleController extends Controller
         $article->delete();
 
         return response()->view('components.redirect', [
-                'hx_get' => '/htmx/users/' . auth()->user()->username,
-                'hx_target' => '#app-body',
-                'hx_trigger' => 'load',
-            ])
+            'hx_get' => '/htmx/users/'.auth()->user()->username,
+            'hx_target' => '#app-body',
+            'hx_trigger' => 'load',
+        ])
             ->withHeaders([
-                'HX-Push-Url' => '/users/' . auth()->user()->username
+                'HX-Push-Url' => '/users/'.auth()->user()->username,
             ]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Htmx;
 
-use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SignUpRequest;
+use App\Models\User;
 
 class HTMXSignUpController extends Controller
 {
@@ -12,10 +12,10 @@ class HTMXSignUpController extends Controller
     {
         return view('sign-up.partials.index')
             .view('components.navbar', [
-                'navbar_active' => 'sign-up'
+                'navbar_active' => 'sign-up',
             ])
             .view('components.htmx.head', [
-                'page_title' => 'Sign Up —'
+                'page_title' => 'Sign Up —',
             ]);
     }
 
@@ -26,7 +26,7 @@ class HTMXSignUpController extends Controller
         $user = User::create([
             'username' => $validated['username'],
             'email' => $validated['email'],
-            'password' => bcrypt($validated['password'])
+            'password' => bcrypt($validated['password']),
         ]);
 
         auth()->login($user);
@@ -36,9 +36,9 @@ class HTMXSignUpController extends Controller
             'hx_target' => '#app-body',
             'hx_trigger' => 'load',
         ])
-        ->withHeaders([
-            'HX-Replace-Url' => '/',
-            'HX-Reswap' => 'none'
-        ]);
+            ->withHeaders([
+                'HX-Replace-Url' => '/',
+                'HX-Reswap' => 'none',
+            ]);
     }
 }

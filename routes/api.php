@@ -21,6 +21,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Health check endpoint for monitoring (e.g., Grafana)
 Route::get('/health', function () {
     return response()->json([
-        'status' => 'ok'
+        'status' => 'ok',
     ]);
 });

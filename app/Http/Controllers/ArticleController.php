@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Support\Str;
-use App\Http\Controllers\Controller;
 
 class ArticleController extends Controller
 {
@@ -22,7 +21,7 @@ class ArticleController extends Controller
             'comments' => $article->comments()->latest()->get(),
             'favorite_count' => $article->favoritedUsers->count(),
             'is_favorited' => $isArticleFavoritedByUser,
-            'page_title' => Str::words($article->title, 40, '') . ' —'
+            'page_title' => Str::words($article->title, 40, '').' —',
         ]);
     }
 }

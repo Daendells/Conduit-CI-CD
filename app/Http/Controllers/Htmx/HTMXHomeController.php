@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Htmx;
 
-use App\Models\Tag;
+use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\Tag;
 use App\Support\Helpers;
 use Illuminate\Support\Str;
-use App\Http\Controllers\Controller;
 
 class HTMXHomeController extends Controller
 {
@@ -14,7 +14,7 @@ class HTMXHomeController extends Controller
     {
         return view('home.partials.index')
             .view('components.navbar', [
-                'navbar_active' => 'home'
+                'navbar_active' => 'home',
             ]);
     }
 
@@ -23,7 +23,7 @@ class HTMXHomeController extends Controller
         if (auth()->guest()) {
             return Helpers::redirectToSignIn();
         }
-        
+
         $isArticleFavoritedByUser = $article->toggleUserFavorite(auth()->user());
 
         return view('home.partials.article-favorite-button', [
@@ -45,11 +45,11 @@ class HTMXHomeController extends Controller
         return view('home.partials.post-preview', ['articles' => $articles])
             .view('home.partials.pagination', [
                 'paginator' => $articles,
-                'page_number' => request()->page ?? 1
+                'page_number' => request()->page ?? 1,
             ])
             .view('home.partials.feed-navigation', ['feedNavbarItems' => $feedNavbarItems])
             .view('components.htmx.head', [
-                'page_title' => 'Your feed —'
+                'page_title' => 'Your feed —',
             ]);
     }
 
@@ -65,18 +65,18 @@ class HTMXHomeController extends Controller
         return view('home.partials.post-preview', ['articles' => $articles])
             .view('home.partials.pagination', [
                 'paginator' => $articles,
-                'page_number' => request()->page ?? 1
+                'page_number' => request()->page ?? 1,
             ])
             .view('home.partials.feed-navigation', ['feedNavbarItems' => $feedNavbarItems])
             .view('components.htmx.head', [
-                'page_title' => ''
+                'page_title' => '',
             ]);
     }
 
     public function tagFeed(Tag $tag)
     {
         $articles = Article::with(['tags', 'favoritedUsers'])
-            ->whereHas('tags', function($q) use ($tag) {
+            ->whereHas('tags', function ($q) use ($tag) {
                 $q->where('id', $tag->id);
             })
             ->paginate(5);
@@ -86,17 +86,17 @@ class HTMXHomeController extends Controller
             'title' => $tag->name,
             'is_active' => true,
             'hx_get_url' => '/htmx/tag-feed',
-            'hx_push_url' => '/tag-feed/' . $tag->name
+            'hx_push_url' => '/tag-feed/'.$tag->name,
         ];
 
         return view('home.partials.post-preview', ['articles' => $articles])
             .view('home.partials.pagination', [
                 'paginator' => $articles,
-                'page_number' => request()->page ?? 1
+                'page_number' => request()->page ?? 1,
             ])
             .view('home.partials.feed-navigation', ['feedNavbarItems' => $feedNavbarItems])
             .view('components.htmx.head', [
-                'page_title' => Str::words($tag->name, 40, '') . ' —'
+                'page_title' => Str::words($tag->name, 40, '').' —',
             ]);
     }
 
@@ -105,7 +105,7 @@ class HTMXHomeController extends Controller
         $popularTags = Tag::favoriteTags();
 
         return view('home.partials.tag-item-list', [
-            'popularTags' => $popularTags
+            'popularTags' => $popularTags,
         ]);
     }
 }

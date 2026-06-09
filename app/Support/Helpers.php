@@ -10,12 +10,12 @@ class Helpers
     {
         $navbarItems = [];
 
-        if (!auth()->guest()) {
+        if (! auth()->guest()) {
             $navbarItems['personal'] = [
                 'title' => 'Your Feed',
                 'is_active' => false,
                 'hx_get_url' => '/htmx/home/your-feed',
-                'hx_push_url' => '/your-feed'
+                'hx_push_url' => '/your-feed',
             ];
         }
 
@@ -23,7 +23,7 @@ class Helpers
             'title' => 'Global Feed',
             'is_active' => false,
             'hx_get_url' => '/htmx/home/global-feed',
-            'hx_push_url' => '/'
+            'hx_push_url' => '/',
         ];
 
         return $navbarItems;
@@ -35,41 +35,41 @@ class Helpers
             'personal' => [
                 'title' => 'My Articles',
                 'is_active' => true,
-                'url' => '/users/' . $user->username,
-                'hx_get_url' => '/htmx/users/' . $user->username . '/articles'
+                'url' => '/users/'.$user->username,
+                'hx_get_url' => '/htmx/users/'.$user->username.'/articles',
             ],
             'favorite' => [
                 'title' => 'Favorited Articles',
                 'is_active' => false,
-                'url' => '/users/' . $user->username . '/favorites',
-                'hx_get_url' => '/htmx/users/' . $user->username . '/favorites'
-            ]
+                'url' => '/users/'.$user->username.'/favorites',
+                'hx_get_url' => '/htmx/users/'.$user->username.'/favorites',
+            ],
         ];
     }
 
     public static function redirectToHome()
     {
         return response()->view('components.redirect', [
-                'hx_get' => '/htmx/home',
-                'hx_target' => '#app-body',
-                'hx_trigger' => 'load',
-            ])
+            'hx_get' => '/htmx/home',
+            'hx_target' => '#app-body',
+            'hx_trigger' => 'load',
+        ])
             ->withHeaders([
                 'HX-Replace-Url' => '/',
-                'HX-Reswap' => 'none'
+                'HX-Reswap' => 'none',
             ]);
     }
 
     public static function redirectToSignIn()
     {
         return response()->view('components.redirect', [
-                'hx_get' => '/htmx/sign-in',
-                'hx_target' => '#app-body',
-                'hx_trigger' => 'load',
-            ])
+            'hx_get' => '/htmx/sign-in',
+            'hx_target' => '#app-body',
+            'hx_trigger' => 'load',
+        ])
             ->withHeaders([
                 'HX-Push-Url' => '/sign-in',
-                'HX-Reswap' => 'none'
+                'HX-Reswap' => 'none',
             ]);
     }
 }

@@ -62,7 +62,7 @@ class UserModelTest extends TestCase
     public function test_get_image_attribute_returns_set_value(): void
     {
         $imageUrl = 'https://example.com/my-avatar.png';
-        $user     = User::factory()->create(['image' => $imageUrl]);
+        $user = User::factory()->create(['image' => $imageUrl]);
 
         $this->assertEquals($imageUrl, $user->image);
     }

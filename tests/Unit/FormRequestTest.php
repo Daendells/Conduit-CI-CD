@@ -31,7 +31,7 @@ class FormRequestTest extends TestCase
     public function test_article_post_comment_request_rules_require_comment(): void
     {
         $request = new ArticlePostCommentRequest();
-        $rules   = $request->rules();
+        $rules = $request->rules();
 
         $this->assertArrayHasKey('comment', $rules);
         $this->assertEquals('required', $rules['comment']);
@@ -66,6 +66,7 @@ class FormRequestTest extends TestCase
             $response = $e->getResponse();
             $this->assertEquals('innerHTML show:top', $response->headers->get('HX-Reswap'));
             $this->assertEquals('#form-message', $response->headers->get('HX-Retarget'));
+
             return;
         }
 
@@ -85,7 +86,7 @@ class FormRequestTest extends TestCase
     public function test_editor_store_article_request_rules_structure(): void
     {
         $request = new EditorStoreArticleRequest();
-        $rules   = $request->rules();
+        $rules = $request->rules();
 
         $this->assertArrayHasKey('title', $rules);
         $this->assertArrayHasKey('description', $rules);
@@ -124,6 +125,7 @@ class FormRequestTest extends TestCase
             $response = $e->getResponse();
             $this->assertEquals('innerHTML show:top', $response->headers->get('HX-Reswap'));
             $this->assertEquals('#form-message', $response->headers->get('HX-Retarget'));
+
             return;
         }
 
@@ -149,7 +151,7 @@ class FormRequestTest extends TestCase
         $this->actingAs($user);
 
         $request = new SettingUpdateRequest();
-        $rules   = $request->rules();
+        $rules = $request->rules();
 
         $this->assertArrayHasKey('image_url', $rules);
         $this->assertArrayHasKey('name', $rules);
@@ -193,6 +195,7 @@ class FormRequestTest extends TestCase
             $response = $e->getResponse();
             $this->assertEquals('innerHTML show:top', $response->headers->get('HX-Reswap'));
             $this->assertEquals('#settings-form-message', $response->headers->get('HX-Retarget'));
+
             return;
         }
 
@@ -212,7 +215,7 @@ class FormRequestTest extends TestCase
     public function test_sign_in_request_rules_structure(): void
     {
         $request = new SignInRequest();
-        $rules   = $request->rules();
+        $rules = $request->rules();
 
         $this->assertArrayHasKey('email', $rules);
         $this->assertArrayHasKey('password', $rules);
@@ -249,6 +252,7 @@ class FormRequestTest extends TestCase
             $response = $e->getResponse();
             $this->assertEquals('innerHTML show:top', $response->headers->get('HX-Reswap'));
             $this->assertEquals('#sign-in-form-messages', $response->headers->get('HX-Retarget'));
+
             return;
         }
 
@@ -268,7 +272,7 @@ class FormRequestTest extends TestCase
     public function test_sign_up_request_rules_structure(): void
     {
         $request = new SignUpRequest();
-        $rules   = $request->rules();
+        $rules = $request->rules();
 
         $this->assertArrayHasKey('username', $rules);
         $this->assertArrayHasKey('email', $rules);
@@ -304,6 +308,7 @@ class FormRequestTest extends TestCase
             $response = $e->getResponse();
             $this->assertEquals('innerHTML show:top', $response->headers->get('HX-Reswap'));
             $this->assertEquals('#sign-up-form-messages', $response->headers->get('HX-Retarget'));
+
             return;
         }
 

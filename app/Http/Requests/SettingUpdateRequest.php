@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class SettingUpdateRequest extends FormRequest
 {
@@ -29,19 +29,19 @@ class SettingUpdateRequest extends FormRequest
             'name' => 'required',
             'email' => ['required', Rule::unique('users', 'email')->ignore(auth()->user()?->id, '_id')],
             'bio' => 'nullable',
-            'password' => 'nullable'
+            'password' => 'nullable',
         ];
     }
-    
+
     protected function failedValidation(Validator $validator)
     {
         $response = response()->view('components.form-error-message', [
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ])
-        ->withHeaders([
-            'HX-Reswap' => 'innerHTML show:top',
-            'HX-Retarget' => '#settings-form-message'
-        ]);
+            ->withHeaders([
+                'HX-Reswap' => 'innerHTML show:top',
+                'HX-Retarget' => '#settings-form-message',
+            ]);
 
         throw new HttpResponseException($response);
     }

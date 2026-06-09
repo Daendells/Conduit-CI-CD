@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Article;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -12,7 +11,7 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->get('/users/' . $user->username);
+        $response = $this->get('/users/'.$user->username);
 
         $response->assertStatus(200);
         $response->assertViewIs('users.show');
@@ -22,7 +21,7 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->get('/users/' . $user->username . '/favorites');
+        $response = $this->get('/users/'.$user->username.'/favorites');
 
         $response->assertStatus(200);
         $response->assertViewIs('users.show');
@@ -35,12 +34,12 @@ class ProfileTest extends TestCase
 
         $this->actingAs($currentUser);
 
-        $response = $this->post('/htmx/articles/follow-user/' . $targetUser->username);
+        $response = $this->post('/htmx/articles/follow-user/'.$targetUser->username);
         $response->assertStatus(200);
 
         $this->assertTrue($targetUser->fresh()->followers->contains('id', $currentUser->id));
 
-        $response = $this->post('/htmx/articles/follow-user/' . $targetUser->username);
+        $response = $this->post('/htmx/articles/follow-user/'.$targetUser->username);
         $response->assertStatus(200);
 
         $this->assertFalse($targetUser->fresh()->followers->contains('id', $currentUser->id));

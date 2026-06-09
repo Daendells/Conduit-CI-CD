@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use App\Models\Article;
 use App\Models\User;
 use App\Support\Helpers;
 use Tests\TestCase;
@@ -66,7 +65,7 @@ class HelpersTest extends TestCase
 
     public function test_user_feed_navbar_items_has_correct_structure(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $items = Helpers::userFeedNavbarItems($user);
 
         $this->assertArrayHasKey('personal', $items);
@@ -75,7 +74,7 @@ class HelpersTest extends TestCase
 
     public function test_user_feed_navbar_items_personal_is_active_by_default(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $items = Helpers::userFeedNavbarItems($user);
 
         $this->assertTrue($items['personal']['is_active']);
@@ -84,7 +83,7 @@ class HelpersTest extends TestCase
 
     public function test_user_feed_navbar_items_urls_contain_username(): void
     {
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         $items = Helpers::userFeedNavbarItems($user);
 
         $this->assertStringContainsString($user->username, $items['personal']['url']);

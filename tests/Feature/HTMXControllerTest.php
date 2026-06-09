@@ -44,7 +44,7 @@ class HTMXControllerTest extends TestCase
     {
         $tag = Tag::factory()->create();
 
-        $response = $this->get('/htmx/home/tag-feed/' . $tag->name);
+        $response = $this->get('/htmx/home/tag-feed/'.$tag->name);
         $response->assertStatus(200);
     }
 
@@ -58,7 +58,7 @@ class HTMXControllerTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->post('/htmx/home/articles/' . $article->slug . '/favorite');
+        $response = $this->post('/htmx/home/articles/'.$article->slug.'/favorite');
         $response->assertStatus(200);
         $this->assertStringContainsString('/htmx/sign-in', $response->getContent());
     }
@@ -70,7 +70,7 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post('/htmx/home/articles/' . $article->slug . '/favorite');
+        $response = $this->post('/htmx/home/articles/'.$article->slug.'/favorite');
         $response->assertStatus(200);
     }
 
@@ -82,7 +82,7 @@ class HTMXControllerTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->get('/htmx/articles/' . $article->slug);
+        $response = $this->get('/htmx/articles/'.$article->slug);
         $response->assertStatus(200);
     }
 
@@ -93,7 +93,7 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->get('/htmx/articles/' . $article->slug);
+        $response = $this->get('/htmx/articles/'.$article->slug);
         $response->assertStatus(200);
     }
 
@@ -101,7 +101,7 @@ class HTMXControllerTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->post('/htmx/articles/' . $article->slug . '/favorite');
+        $response = $this->post('/htmx/articles/'.$article->slug.'/favorite');
         $response->assertStatus(200);
         $this->assertStringContainsString('/htmx/sign-in', $response->getContent());
     }
@@ -113,7 +113,7 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post('/htmx/articles/' . $article->slug . '/favorite');
+        $response = $this->post('/htmx/articles/'.$article->slug.'/favorite');
         $response->assertStatus(200);
     }
 
@@ -121,7 +121,7 @@ class HTMXControllerTest extends TestCase
     {
         $targetUser = User::factory()->create();
 
-        $response = $this->post('/htmx/articles/follow-user/' . $targetUser->username);
+        $response = $this->post('/htmx/articles/follow-user/'.$targetUser->username);
         $response->assertStatus(200);
         $this->assertStringContainsString('/htmx/sign-in', $response->getContent());
     }
@@ -133,7 +133,7 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($currentUser);
 
-        $response = $this->post('/htmx/articles/follow-user/' . $targetUser->username);
+        $response = $this->post('/htmx/articles/follow-user/'.$targetUser->username);
         $response->assertStatus(200);
     }
 
@@ -141,7 +141,7 @@ class HTMXControllerTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->get('/htmx/articles/' . $article->slug . '/comments');
+        $response = $this->get('/htmx/articles/'.$article->slug.'/comments');
         $response->assertStatus(200);
     }
 
@@ -152,7 +152,7 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post('/htmx/articles/' . $article->slug . '/comments', [
+        $response = $this->post('/htmx/articles/'.$article->slug.'/comments', [
             'comment' => 'Test HTMX comment',
         ]);
 
@@ -163,7 +163,7 @@ class HTMXControllerTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->delete('/htmx/articles/' . $article->slug);
+        $response = $this->delete('/htmx/articles/'.$article->slug);
         $response->assertStatus(200);
         $this->assertStringContainsString('/htmx/sign-in', $response->getContent());
     }
@@ -175,7 +175,7 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->delete('/htmx/articles/' . $article->slug);
+        $response = $this->delete('/htmx/articles/'.$article->slug);
         $response->assertStatus(200);
         $this->assertDatabaseMissing('articles', ['_id' => $article->id]);
     }
@@ -216,7 +216,7 @@ class HTMXControllerTest extends TestCase
         $this->actingAs($user);
 
         $response = $this->post('/htmx/editor', [
-            'title'   => 'My New Article Title',
+            'title' => 'My New Article Title',
             'content' => 'Some article content here.',
             'description' => 'A short description',
             'tags' => null,
@@ -224,7 +224,7 @@ class HTMXControllerTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertDatabaseHas('articles', [
-            'title'   => 'My New Article Title',
+            'title' => 'My New Article Title',
             'user_id' => $user->id,
         ]);
     }
@@ -234,17 +234,17 @@ class HTMXControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $uid      = uniqid('tag_');
+        $uid = uniqid('tag_');
         $tagsJson = json_encode([
-            (object)['value' => 'laravel-' . $uid],
-            (object)['value' => 'php-' . $uid],
+            (object) ['value' => 'laravel-'.$uid],
+            (object) ['value' => 'php-'.$uid],
         ]);
 
         $response = $this->post('/htmx/editor', [
-            'title'       => 'Article With Tags',
-            'content'     => 'Content here.',
+            'title' => 'Article With Tags',
+            'content' => 'Content here.',
             'description' => 'Description',
-            'tags'        => $tagsJson,
+            'tags' => $tagsJson,
         ]);
 
         $response->assertStatus(200);
@@ -254,7 +254,7 @@ class HTMXControllerTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->get('/htmx/editor/' . $article->slug);
+        $response = $this->get('/htmx/editor/'.$article->slug);
         $response->assertStatus(200);
         $this->assertStringContainsString('/htmx/sign-in', $response->getContent());
     }
@@ -266,7 +266,7 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->get('/htmx/editor/' . $article->slug);
+        $response = $this->get('/htmx/editor/'.$article->slug);
         $response->assertStatus(200);
     }
 
@@ -274,8 +274,8 @@ class HTMXControllerTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->post('/htmx/editor/' . $article->slug, [
-            'title'   => 'Updated Title',
+        $response = $this->post('/htmx/editor/'.$article->slug, [
+            'title' => 'Updated Title',
             'content' => 'Updated content',
         ]);
         $response->assertStatus(200);
@@ -289,11 +289,11 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post('/htmx/editor/' . $article->slug, [
-            'title'       => 'Updated Article Title',
-            'content'     => 'Updated content.',
+        $response = $this->post('/htmx/editor/'.$article->slug, [
+            'title' => 'Updated Article Title',
+            'content' => 'Updated content.',
             'description' => 'Updated description',
-            'tags'        => null,
+            'tags' => null,
         ]);
 
         $response->assertStatus(200);
@@ -307,16 +307,16 @@ class HTMXControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $uid      = uniqid('tag_');
+        $uid = uniqid('tag_');
         $tagsJson = json_encode([
-            (object)['value' => 'updated-tag-' . $uid],
+            (object) ['value' => 'updated-tag-'.$uid],
         ]);
 
-        $response = $this->post('/htmx/editor/' . $article->slug, [
-            'title'       => 'Updated With Tags',
-            'content'     => 'Content.',
+        $response = $this->post('/htmx/editor/'.$article->slug, [
+            'title' => 'Updated With Tags',
+            'content' => 'Content.',
             'description' => 'Desc',
-            'tags'        => $tagsJson,
+            'tags' => $tagsJson,
         ]);
 
         $response->assertStatus(200);
@@ -345,11 +345,11 @@ class HTMXControllerTest extends TestCase
     public function test_htmx_settings_update_redirects_guest(): void
     {
         $response = $this->post('/htmx/settings', [
-            'name'      => 'Test',
-            'email'     => 'test@example.com',
-            'bio'       => '',
+            'name' => 'Test',
+            'email' => 'test@example.com',
+            'bio' => '',
             'image_url' => '',
-            'password'  => '',
+            'password' => '',
         ]);
         $response->assertStatus(200);
         $this->assertStringContainsString('/htmx/sign-in', $response->getContent());
@@ -361,11 +361,11 @@ class HTMXControllerTest extends TestCase
         $this->actingAs($user);
 
         $response = $this->post('/htmx/settings', [
-            'name'      => 'Updated Name',
-            'email'     => $user->email,
-            'bio'       => 'My new bio',
+            'name' => 'Updated Name',
+            'email' => $user->email,
+            'bio' => 'My new bio',
             'image_url' => 'https://example.com/image.jpg',
-            'password'  => '',
+            'password' => '',
         ]);
 
         $response->assertStatus(200);
@@ -378,11 +378,11 @@ class HTMXControllerTest extends TestCase
         $this->actingAs($user);
 
         $response = $this->post('/htmx/settings', [
-            'name'      => $user->name,
-            'email'     => $user->email,
-            'bio'       => '',
+            'name' => $user->name,
+            'email' => $user->email,
+            'bio' => '',
             'image_url' => '',
-            'password'  => 'newpassword123',
+            'password' => 'newpassword123',
         ]);
 
         $response->assertStatus(200);
@@ -403,7 +403,7 @@ class HTMXControllerTest extends TestCase
         $user = User::factory()->create(['password' => bcrypt('secret')]);
 
         $response = $this->post('/htmx/sign-in', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'secret',
         ]);
 
@@ -414,7 +414,7 @@ class HTMXControllerTest extends TestCase
     public function test_htmx_sign_in_with_invalid_credentials_returns_error(): void
     {
         $response = $this->post('/htmx/sign-in', [
-            'email'    => 'nonexistent@example.com',
+            'email' => 'nonexistent@example.com',
             'password' => 'wrongpassword',
         ]);
 
@@ -427,7 +427,7 @@ class HTMXControllerTest extends TestCase
         $user = User::factory()->create(['password' => bcrypt('correct-password')]);
 
         $response = $this->post('/htmx/sign-in', [
-            'email'    => $user->email,
+            'email' => $user->email,
             'password' => 'wrong-password',
         ]);
 
@@ -457,19 +457,19 @@ class HTMXControllerTest extends TestCase
 
     public function test_htmx_sign_up_creates_user_and_logs_in(): void
     {
-        $email    = 'htmxtest+' . uniqid() . '@example.com';
-        $username = 'htmxuser-' . uniqid();
+        $email = 'htmxtest+'.uniqid().'@example.com';
+        $username = 'htmxuser-'.uniqid();
 
         $response = $this->post('/htmx/sign-up', [
             'username' => $username,
-            'email'    => $email,
+            'email' => $email,
             'password' => 'password123',
         ]);
 
         $response->assertStatus(200);
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', [
-            'email'    => $email,
+            'email' => $email,
             'username' => $username,
         ]);
     }
@@ -482,7 +482,7 @@ class HTMXControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->get('/htmx/users/' . $user->username);
+        $response = $this->get('/htmx/users/'.$user->username);
         $response->assertStatus(200);
     }
 
@@ -491,19 +491,19 @@ class HTMXControllerTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->get('/htmx/users/' . $user->username);
+        $response = $this->get('/htmx/users/'.$user->username);
         $response->assertStatus(200);
     }
 
     public function test_htmx_user_show_with_authenticated_user_following(): void
     {
         $currentUser = User::factory()->create();
-        $targetUser  = User::factory()->create();
+        $targetUser = User::factory()->create();
         $currentUser->toggleFollowUser($targetUser);
 
         $this->actingAs($currentUser);
 
-        $response = $this->get('/htmx/users/' . $targetUser->username);
+        $response = $this->get('/htmx/users/'.$targetUser->username);
         $response->assertStatus(200);
     }
 
@@ -511,7 +511,7 @@ class HTMXControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->get('/htmx/users/' . $user->username . '/articles');
+        $response = $this->get('/htmx/users/'.$user->username.'/articles');
         $response->assertStatus(200);
     }
 
@@ -519,7 +519,7 @@ class HTMXControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->get('/htmx/users/' . $user->username . '/favorites');
+        $response = $this->get('/htmx/users/'.$user->username.'/favorites');
         $response->assertStatus(200);
     }
 
@@ -527,7 +527,7 @@ class HTMXControllerTest extends TestCase
     {
         $targetUser = User::factory()->create();
 
-        $response = $this->post('/htmx/users/' . $targetUser->username . '/follow');
+        $response = $this->post('/htmx/users/'.$targetUser->username.'/follow');
         $response->assertStatus(200);
         $this->assertStringContainsString('/htmx/sign-in', $response->getContent());
     }
@@ -535,11 +535,11 @@ class HTMXControllerTest extends TestCase
     public function test_htmx_user_follow_works_for_authenticated_user(): void
     {
         $currentUser = User::factory()->create();
-        $targetUser  = User::factory()->create();
+        $targetUser = User::factory()->create();
 
         $this->actingAs($currentUser);
 
-        $response = $this->post('/htmx/users/' . $targetUser->username . '/follow');
+        $response = $this->post('/htmx/users/'.$targetUser->username.'/follow');
         $response->assertStatus(200);
     }
 
@@ -547,26 +547,26 @@ class HTMXControllerTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->post('/htmx/users/articles/' . $article->slug . '/favorite');
+        $response = $this->post('/htmx/users/articles/'.$article->slug.'/favorite');
         $response->assertStatus(200);
         $this->assertStringContainsString('/htmx/sign-in', $response->getContent());
     }
 
     public function test_htmx_user_favorite_article_works_for_authenticated_user(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create();
 
         $this->actingAs($user);
 
         // Without HTTP_REFERER header (the isDeleteItem branch is skipped)
-        $response = $this->post('/htmx/users/articles/' . $article->slug . '/favorite');
+        $response = $this->post('/htmx/users/articles/'.$article->slug.'/favorite');
         $response->assertStatus(200);
     }
 
     public function test_htmx_user_favorite_article_on_own_profile(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create(['user_id' => $user->id]);
 
         $this->actingAs($user);
@@ -574,8 +574,8 @@ class HTMXControllerTest extends TestCase
         // Include Referer header with the username to trigger the isDeleteItem branch
         // Laravel test helpers pass 'Referer' which becomes HTTP_REFERER in server superglobal
         $response = $this->withHeaders([
-            'Referer' => 'http://localhost/users/' . $user->username,
-        ])->post('/htmx/users/articles/' . $article->slug . '/favorite');
+            'Referer' => 'http://localhost/users/'.$user->username,
+        ])->post('/htmx/users/articles/'.$article->slug.'/favorite');
 
         $response->assertStatus(200);
     }

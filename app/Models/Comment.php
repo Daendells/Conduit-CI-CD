@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Comment extends Model
 {
@@ -13,7 +13,7 @@ class Comment extends Model
 
     protected $fillable = [
         'user_id',
-        'body'
+        'body',
     ];
 
     /**

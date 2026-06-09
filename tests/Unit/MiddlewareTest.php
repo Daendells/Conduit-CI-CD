@@ -21,7 +21,7 @@ class MiddlewareTest extends TestCase
     public function test_authenticate_redirects_to_login_for_non_json_requests(): void
     {
         $middleware = $this->app->make(Authenticate::class);
-        $request    = Request::create('/some-protected-route', 'GET');
+        $request = Request::create('/some-protected-route', 'GET');
 
         // Use reflection to call the protected redirectTo method
         $reflection = new \ReflectionMethod($middleware, 'redirectTo');
@@ -35,7 +35,7 @@ class MiddlewareTest extends TestCase
     public function test_authenticate_returns_null_for_json_requests(): void
     {
         $middleware = $this->app->make(Authenticate::class);
-        $request    = Request::create('/api/something', 'GET', [], [], [], [
+        $request = Request::create('/api/something', 'GET', [], [], [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 
@@ -54,11 +54,12 @@ class MiddlewareTest extends TestCase
     public function test_redirect_if_authenticated_passes_guest_through(): void
     {
         $middleware = new RedirectIfAuthenticated();
-        $request    = Request::create('/sign-in', 'GET');
+        $request = Request::create('/sign-in', 'GET');
 
         $nextCalled = false;
         $next = function ($req) use (&$nextCalled) {
             $nextCalled = true;
+
             return response('OK');
         };
 
@@ -93,11 +94,12 @@ class MiddlewareTest extends TestCase
     public function test_redirect_if_authenticated_uses_default_guard_when_no_guards_provided(): void
     {
         $middleware = new RedirectIfAuthenticated();
-        $request    = Request::create('/sign-in', 'GET');
+        $request = Request::create('/sign-in', 'GET');
 
         $nextCalled = false;
         $next = function ($req) use (&$nextCalled) {
             $nextCalled = true;
+
             return response('OK');
         };
 
