@@ -10,7 +10,7 @@ class HomeController extends Controller
     public function index()
     {
         return view('home.index', [
-            'page_title' => 'Home —'
+            'page_title' => 'Home —',
         ]);
     }
 
@@ -18,7 +18,7 @@ class HomeController extends Controller
     {
         return view('home.index', [
             'personal' => true,
-            'page_title' => 'Your feed —'
+            'page_title' => 'Your feed —',
         ]);
     }
 
@@ -26,7 +26,7 @@ class HomeController extends Controller
     {
         return view('home.index', [
             'tag' => $tag,
-            'page_title' => Str::words($tag->name, 40, '') . ' —'
+            'page_title' => Str::words($tag->name, 40, '').' —',
         ]);
     }
 }

@@ -11,7 +11,7 @@ class SettingsController extends Controller
         return view('settings.index', [
             'navbar_active' => 'settings',
             'user' => $user,
-            'page_title' => 'Settings —'
+            'page_title' => 'Settings —',
         ]);
     }
 }

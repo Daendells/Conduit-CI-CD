@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class SignUpRequest extends FormRequest
@@ -26,21 +26,21 @@ class SignUpRequest extends FormRequest
         return [
             'username' => 'required|unique:users,username',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required'
+            'password' => 'required',
         ];
     }
-    
+
     protected function failedValidation(Validator $validator)
     {
         $response = response()->view('components.form-error-message', [
             'errors' => $validator->errors(),
             'oldEmail' => request()->get('email'),
-            'oldUsername' => request()->get('username')
+            'oldUsername' => request()->get('username'),
         ])
-        ->withHeaders([
-            'HX-Reswap' => 'innerHTML show:top',
-            'HX-Retarget' => '#sign-up-form-messages'
-        ]);
+            ->withHeaders([
+                'HX-Reswap' => 'innerHTML show:top',
+                'HX-Retarget' => '#sign-up-form-messages',
+            ]);
 
         throw new HttpResponseException($response);
     }

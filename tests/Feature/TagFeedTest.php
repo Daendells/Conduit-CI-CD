@@ -12,7 +12,7 @@ class TagFeedTest extends TestCase
     {
         $tag = Tag::factory()->create();
 
-        $response = $this->get('/tag-feed/' . $tag->name);
+        $response = $this->get('/tag-feed/'.$tag->name);
 
         $response->assertStatus(200);
         $response->assertViewIs('home.index');

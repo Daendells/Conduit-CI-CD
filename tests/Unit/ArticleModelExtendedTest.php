@@ -14,7 +14,7 @@ class ArticleModelExtendedTest extends TestCase
 {
     public function test_scope_favorited_by_user_filters_correctly(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create();
 
         $article->toggleUserFavorite($user);
@@ -29,7 +29,7 @@ class ArticleModelExtendedTest extends TestCase
 
     public function test_scope_favorited_by_user_excludes_non_favorited(): void
     {
-        $user         = User::factory()->create();
+        $user = User::factory()->create();
         $otherArticle = Article::factory()->create();
 
         // otherArticle is NOT favorited by $user
@@ -41,7 +41,7 @@ class ArticleModelExtendedTest extends TestCase
     public function test_scope_of_authors_followed_by_user(): void
     {
         $follower = User::factory()->create();
-        $author   = User::factory()->create();
+        $author = User::factory()->create();
         Article::factory()->create(['user_id' => $author->id]);
 
         $follower->toggleFollowUser($author);
@@ -61,9 +61,9 @@ class ArticleModelExtendedTest extends TestCase
 
     public function test_scope_of_authors_followed_by_user_excludes_non_followed(): void
     {
-        $follower      = User::factory()->create();
-        $stranger      = User::factory()->create();
-        $otherArticle  = Article::factory()->create(['user_id' => $stranger->id]);
+        $follower = User::factory()->create();
+        $stranger = User::factory()->create();
+        $otherArticle = Article::factory()->create(['user_id' => $stranger->id]);
 
         // follower does NOT follow stranger
         $this->assertFalse($follower->following($stranger));
@@ -77,7 +77,7 @@ class ArticleModelExtendedTest extends TestCase
     public function test_attach_tags_creates_and_links_tags(): void
     {
         $article = Article::factory()->create();
-        $uid     = uniqid('tag_');
+        $uid = uniqid('tag_');
 
         $article->attachTags(["php-{$uid}", "laravel-{$uid}", "testing-{$uid}"]);
 
@@ -91,7 +91,7 @@ class ArticleModelExtendedTest extends TestCase
     public function test_attach_tags_reuses_existing_tags(): void
     {
         $article = Article::factory()->create();
-        $uid     = uniqid('tag_');
+        $uid = uniqid('tag_');
         $tagName = "php-{$uid}";
 
         // Attach once
@@ -113,7 +113,7 @@ class ArticleModelExtendedTest extends TestCase
 
     public function test_article_belongs_to_user(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create(['user_id' => $user->id]);
 
         $this->assertInstanceOf(User::class, $article->user);
@@ -122,12 +122,12 @@ class ArticleModelExtendedTest extends TestCase
 
     public function test_article_has_many_comments(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create();
 
         $article->comments()->create([
             'user_id' => $user->id,
-            'body'    => 'A comment',
+            'body' => 'A comment',
         ]);
 
         $this->assertCount(1, $article->fresh()->comments);
@@ -135,7 +135,7 @@ class ArticleModelExtendedTest extends TestCase
 
     public function test_article_favorited_users_relationship(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create();
 
         $article->toggleUserFavorite($user);

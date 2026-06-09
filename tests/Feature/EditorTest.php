@@ -32,18 +32,18 @@ class EditorTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->get('/editor/' . $article->slug);
+        $response = $this->get('/editor/'.$article->slug);
         $response->assertRedirect(route('login'));
     }
 
     public function test_editor_edit_page_is_accessible_for_authenticated_user(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create(['user_id' => $user->id]);
 
         $this->actingAs($user);
 
-        $response = $this->get('/editor/' . $article->slug);
+        $response = $this->get('/editor/'.$article->slug);
         $response->assertStatus(200);
         $response->assertViewIs('editor.edit');
         $response->assertViewHas('article', $article);

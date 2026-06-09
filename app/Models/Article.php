@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use MongoDB\Laravel\Eloquent\Model;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Article extends Model
 {
@@ -17,7 +16,7 @@ class Article extends Model
         'title',
         'slug',
         'description',
-        'body'
+        'body',
     ];
 
     /**

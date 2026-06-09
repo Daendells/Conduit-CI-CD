@@ -10,16 +10,16 @@ class EditorController extends Controller
     {
         return view('editor.create', [
             'navbar_active' => 'editor',
-            'page_title' => 'Editor —'
+            'page_title' => 'Editor —',
         ]);
     }
 
     public function edit(Article $article)
     {
         return view('editor.edit', [
-            'article' => $article, 
+            'article' => $article,
             'navbar_active' => '',
-            'page_title' => 'Editor —'
+            'page_title' => 'Editor —',
         ]);
     }
 }

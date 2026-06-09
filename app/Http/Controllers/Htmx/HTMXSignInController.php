@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Htmx;
 
-use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SignInRequest;
+use App\Models\User;
 use App\Support\Helpers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\MessageBag;
@@ -15,10 +15,10 @@ class HTMXSignInController extends Controller
     {
         return view('sign-in.partials.index')
             .view('components.navbar', [
-                'navbar_active' => 'sign-in'
+                'navbar_active' => 'sign-in',
             ])
             .view('components.htmx.head', [
-                'page_title' => 'Sign In —'
+                'page_title' => 'Sign In —',
             ]);
     }
 
@@ -28,20 +28,20 @@ class HTMXSignInController extends Controller
 
         $user = User::where('email', $validated['email'])->first();
 
-        if (!$user || ! Hash::check($validated['password'], $user->password)) {
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
 
             $errors = new MessageBag([
-                'email' => 'Email and password did not match'
+                'email' => 'Email and password did not match',
             ]);
 
             return response()->view('components.form-error-message', [
                 'errors' => $errors,
-                'oldEmail' => $request->email
+                'oldEmail' => $request->email,
             ])
-            ->withHeaders([
-                'HX-Reswap' => 'innerHTML show:top',
-                'HX-Retarget' => '#sign-in-form-messages'
-            ]);
+                ->withHeaders([
+                    'HX-Reswap' => 'innerHTML show:top',
+                    'HX-Retarget' => '#sign-in-form-messages',
+                ]);
         }
 
         auth()->login($user);
@@ -51,10 +51,10 @@ class HTMXSignInController extends Controller
             'hx_target' => '#app-body',
             'hx_trigger' => 'load',
         ])
-        ->withHeaders([
-            'HX-Replace-Url' => '/',
-            'HX-Reswap' => 'none'
-        ]);
+            ->withHeaders([
+                'HX-Replace-Url' => '/',
+                'HX-Reswap' => 'none',
+            ]);
     }
 
     public function logout()

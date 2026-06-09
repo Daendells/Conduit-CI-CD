@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Http\Requests\SignInRequest;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class SignInController extends Controller
@@ -16,7 +16,7 @@ class SignInController extends Controller
 
         return view('sign-in.index', [
             'navbar_active' => 'sign-in',
-            'page_title' => 'Sign In —'
+            'page_title' => 'Sign In —',
         ]);
     }
 
@@ -26,7 +26,7 @@ class SignInController extends Controller
 
         $user = User::where('email', $validated['email'])->first();
 
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return back()->withErrors(['email' => 'Email and password did not match'])->withInput();
         }
 

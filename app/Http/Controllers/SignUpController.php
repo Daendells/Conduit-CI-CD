@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Http\Requests\SignUpRequest;
+use App\Models\User;
 
 class SignUpController extends Controller
 {
@@ -11,7 +11,7 @@ class SignUpController extends Controller
     {
         return view('sign-up.index', [
             'navbar_active' => 'sign-up',
-            'page_title' => 'Sign Up —'
+            'page_title' => 'Sign Up —',
         ]);
     }
 
@@ -21,7 +21,7 @@ class SignUpController extends Controller
 
         $user = User::create([
             'username' => $validated['username'],
-            'email'    => $validated['email'],
+            'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
         ]);
 

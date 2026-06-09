@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Htmx;
 
-use App\Support\Helpers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SettingUpdateRequest;
+use App\Support\Helpers;
 
 class HTMXSettingsController extends Controller
 {
@@ -19,7 +19,7 @@ class HTMXSettingsController extends Controller
         return view('settings.partials.index', ['user' => $user])
             .view('components.navbar', ['navbar_active' => 'settings'])
             .view('components.htmx.head', [
-                'page_title' => 'Settings —'
+                'page_title' => 'Settings —',
             ]);
     }
 
@@ -35,7 +35,7 @@ class HTMXSettingsController extends Controller
             'image' => $validated['image_url'],
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'bio' => $validated['bio']
+            'bio' => $validated['bio'],
         ];
 
         if ($validated['password']) {
@@ -46,11 +46,11 @@ class HTMXSettingsController extends Controller
 
         return view('settings.partials.form', [
             'user' => $user,
-            'oob_swap' => true
+            'oob_swap' => true,
         ])
         .view('settings.partials.form-message', [
             'message' => 'Successfully updated.',
-            'oob_swap' => true
+            'oob_swap' => true,
         ])
         .view('components.navbar', ['navbar_active' => 'settings']);
     }

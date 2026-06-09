@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Htmx;
 
-use App\Models\User;
-use App\Models\Article;
-use App\Support\Helpers;
 use App\Http\Controllers\Controller;
+use App\Models\Article;
+use App\Models\User;
+use App\Support\Helpers;
 
 class HTMXUserController extends Controller
 {
@@ -26,12 +26,12 @@ class HTMXUserController extends Controller
         }
 
         return view('users.partials.show', [
-                'user' => $user,
-                'articles' => $user->articles,
-                'user_feed_navbar_items' => $userFeedNavbarItems,
-                'follower_count' => $user->followers->count(),
-                'is_followed' => $isUserFollowed
-            ])
+            'user' => $user,
+            'articles' => $user->articles,
+            'user_feed_navbar_items' => $userFeedNavbarItems,
+            'follower_count' => $user->followers->count(),
+            'is_followed' => $isUserFollowed,
+        ])
             .view('components.navbar', ['navbar_active' => $navbarActive]);
     }
 
@@ -42,13 +42,13 @@ class HTMXUserController extends Controller
         $userFeedNavbarItems = Helpers::userFeedNavbarItems($user);
 
         return view('users.partials.post-preview', [
-                'articles' => $user->articles
-            ])
+            'articles' => $user->articles,
+        ])
             .view('users.partials.feed-navigation', [
-                'user_feed_navbar_items' => $userFeedNavbarItems
+                'user_feed_navbar_items' => $userFeedNavbarItems,
             ])
             .view('components.htmx.head', [
-                'page_title' => $user->username . ' —'
+                'page_title' => $user->username.' —',
             ]);
     }
 
@@ -61,14 +61,14 @@ class HTMXUserController extends Controller
         $userFeedNavbarItems['favorite']['is_active'] = true;
 
         return view('users.partials.post-preview', [
-                'articles' => $user->favorites,
-                'is_current_user' => $user->isSelf
-            ])
+            'articles' => $user->favorites,
+            'is_current_user' => $user->isSelf,
+        ])
             .view('users.partials.feed-navigation', [
-                'user_feed_navbar_items' => $userFeedNavbarItems
+                'user_feed_navbar_items' => $userFeedNavbarItems,
             ])
             .view('components.htmx.head', [
-                'page_title' => 'Articles favorited by ' .  $user->username . ' —'
+                'page_title' => 'Articles favorited by '.$user->username.' —',
             ]);
     }
 
@@ -77,7 +77,7 @@ class HTMXUserController extends Controller
         if (auth()->guest()) {
             return Helpers::redirectToSignIn();
         }
-        
+
         $isUserFollowed = auth()->user()->toggleFollowUser($user);
 
         return view('users.partials.follow-button', [
@@ -103,7 +103,7 @@ class HTMXUserController extends Controller
         return response()->view('users.partials.favorite-button', [
             'article' => $article,
             'favorite_count' => $article->favoritedUsers->count(),
-            'is_favorited' => $isArticleFavoritedByUser
+            'is_favorited' => $isArticleFavoritedByUser,
         ]);
     }
 }

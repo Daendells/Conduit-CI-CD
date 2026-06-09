@@ -17,8 +17,8 @@ class AuthTest extends TestCase
 
     public function test_user_can_register(): void
     {
-        $email = 'tester+' . uniqid() . '@example.com';
-        $username = 'tester-' . uniqid();
+        $email = 'tester+'.uniqid().'@example.com';
+        $username = 'tester-'.uniqid();
 
         $response = $this->post('/sign-up', [
             'username' => $username,

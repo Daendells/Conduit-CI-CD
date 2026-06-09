@@ -12,11 +12,11 @@ class TagModelTest extends TestCase
     {
         // Use unique names so this test is isolated from other tests that
         // create tags (MongoDB has no per-test DB cleanup/rollback)
-        $uid  = uniqid('tag_');
+        $uid = uniqid('tag_');
         $tagA = Tag::factory()->create(['name' => "tag-a-{$uid}"]);
         $tagB = Tag::factory()->create(['name' => "tag-b-{$uid}"]);
 
-        $firstArticle  = Article::factory()->create();
+        $firstArticle = Article::factory()->create();
         $secondArticle = Article::factory()->create();
 
         // tag-a gets 2 articles, tag-b gets 1 article
@@ -24,7 +24,7 @@ class TagModelTest extends TestCase
         $secondArticle->attachTags([$tagA->name]);
 
         // Fetch enough results so pollution tags don't push ours out of the list
-        $results  = iterator_to_array(Tag::favoriteTags(500));
+        $results = iterator_to_array(Tag::favoriteTags(500));
         $tagNames = array_column($results, 'name');
 
         $tagAPos = array_search($tagA->name, $tagNames);

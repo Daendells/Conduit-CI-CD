@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\Helpers;
 
@@ -30,7 +29,7 @@ class UserController extends Controller
             'user_feed_navbar_items' => $userFeedNavbarItems,
             'follower_count' => $user->followers->count(),
             'is_followed' => $isUserFollowed,
-            'page_title' => $user->username . ' —'
+            'page_title' => $user->username.' —',
         ]);
     }
 
@@ -39,7 +38,7 @@ class UserController extends Controller
 
         $isUserFollowed = false;
         $user->load(['articles', 'followers']);
-        
+
         $userFeedNavbarItems = Helpers::userFeedNavbarItems($user);
         $userFeedNavbarItems['personal']['is_active'] = false;
         $userFeedNavbarItems['favorite']['is_active'] = true;
@@ -55,7 +54,7 @@ class UserController extends Controller
             'user_feed_navbar_items' => $userFeedNavbarItems,
             'follower_count' => $user->followers->count(),
             'is_followed' => $isUserFollowed,
-            'page_title' => 'Articles favorited by ' .  $user->username . ' —'
+            'page_title' => 'Articles favorited by '.$user->username.' —',
         ]);
     }
 }

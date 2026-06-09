@@ -12,7 +12,7 @@ class ArticleTest extends TestCase
     {
         $article = Article::factory()->create();
 
-        $response = $this->get('/articles/' . $article->slug);
+        $response = $this->get('/articles/'.$article->slug);
 
         $response->assertStatus(200);
         $response->assertViewIs('articles.detail');
@@ -20,12 +20,12 @@ class ArticleTest extends TestCase
 
     public function test_article_show_page_as_authenticated_user(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create();
 
         $this->actingAs($user);
 
-        $response = $this->get('/articles/' . $article->slug);
+        $response = $this->get('/articles/'.$article->slug);
 
         $response->assertStatus(200);
         $response->assertViewIs('articles.detail');
@@ -34,13 +34,13 @@ class ArticleTest extends TestCase
 
     public function test_article_show_page_shows_favorited_status_for_auth_user(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $article = Article::factory()->create();
         $article->toggleUserFavorite($user);
 
         $this->actingAs($user);
 
-        $response = $this->get('/articles/' . $article->slug);
+        $response = $this->get('/articles/'.$article->slug);
 
         $response->assertStatus(200);
         $response->assertViewHas('is_favorited', true);
@@ -53,7 +53,7 @@ class ArticleTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post('/htmx/articles/' . $article->slug . '/favorite');
+        $response = $this->post('/htmx/articles/'.$article->slug.'/favorite');
 
         $response->assertStatus(200);
         $this->assertTrue($article->fresh()->favoritedByUser($user));
@@ -66,15 +66,15 @@ class ArticleTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->post('/htmx/articles/' . $article->slug . '/comments', [
+        $response = $this->post('/htmx/articles/'.$article->slug.'/comments', [
             'comment' => 'This is a test comment.',
         ]);
 
         $response->assertStatus(200);
         $this->assertDatabaseHas('comments', [
             'article_id' => $article->id,
-            'user_id'    => $user->id,
-            'body'       => 'This is a test comment.',
+            'user_id' => $user->id,
+            'body' => 'This is a test comment.',
         ]);
     }
 
@@ -85,7 +85,7 @@ class ArticleTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->delete('/htmx/articles/' . $article->slug);
+        $response = $this->delete('/htmx/articles/'.$article->slug);
 
         $response->assertStatus(200);
         $this->assertDatabaseMissing('articles', [
