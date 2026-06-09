@@ -80,14 +80,47 @@ jobs:
         run: php artisan test --without-tty --coverage
 
   # ─────────────────────────────────────────────────────────────────
-  # JOB 2: Build Docker image & Push ke Artifact Registry
+  # JOB 2: Laravel Pint linting
+  # Berjalan paralel dengan test — build hanya dilanjutkan
+  # jika lint dan test keduanya berhasil
+  # ─────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint (Laravel Pint)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs
+
+      - name: Run Pint
+        run: ./vendor/bin/pint --test
+
+  # ─────────────────────────────────────────────────────────────────
+  # JOB 3: Build Docker image & Push ke Artifact Registry
   # Dipisah dari deploy agar image hanya di-build sekali,
   # kemudian dipakai oleh staging maupun production
   # ─────────────────────────────────────────────────────────────────
   build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test, lint]
 
     steps:
       - name: Checkout Repository
