@@ -182,7 +182,7 @@ jobs:
           PROJECT_ID=$(printf '%s' "${GCP_PROJECT_ID}" | tr -d '[:space:]')
           REPO=$(printf '%s' "${ARTIFACT_REPO}" | tr -d '[:space:]')
           CLEAN_APP_KEY=$(printf '%s' "${APP_KEY}" | tr -d '\n\r')
-          CLEAN_APP_URL=$(printf '%s' "${APP_URL}" | tr -d '[:space:]')
+          CLEAN_APP_URL=$(printf '%s' "${APP_URL}" | tr -d '[:space:]' | sed 's|^http://|https://|')
           CLEAN_MONGODB_URI=$(printf '%s' "${MONGODB_URI}" | tr -d '\n\r')
           IMAGE_NAME="asia-southeast2-docker.pkg.dev/${PROJECT_ID}/${REPO}/pso"
           gcloud run deploy pso-conduit-service-staging \
@@ -207,8 +207,66 @@ jobs:
             --format='value(status.url)'
 
   # ─────────────────────────────────────────────────────────────────
-  # JOB 4: Deploy ke Production
-  # Berjalan setelah staging berhasil.
+  # JOB 4: Smoke test staging
+  # Hits key routes after staging deploy — blocks production if any
+  # return a non-2xx response
+  # ─────────────────────────────────────────────────────────────────
+  smoke-test:
+    name: Smoke Test (Staging)
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+
+    steps:
+      - name: Run smoke tests
+        env:
+          BASE_URL: ${{ secrets.STAGING_APP_URL }}
+        run: |
+          BASE_URL="${BASE_URL%/}"
+          echo "Smoke-testing ${BASE_URL}"
+
+          check() {
+            local label="$1" path="$2" expect="$3"
+            local http_code body
+            http_code=$(curl -sL --max-time 20 -o /tmp/smoke_body -w "%{http_code}" "${BASE_URL}${path}")
+            body=$(cat /tmp/smoke_body)
+            if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 400 ]; then
+              echo "FAIL [${label}]: HTTP ${http_code}"
+              echo "${body}" | head -c 500
+              exit 1
+            fi
+            if [ -n "${expect}" ] && ! echo "${body}" | grep -qi "${expect}"; then
+              echo "FAIL [${label}]: response did not contain '${expect}' (HTTP ${http_code})"
+              echo "${body}" | head -c 500
+              exit 1
+            fi
+            echo "OK   [${label}]: HTTP ${http_code}"
+          }
+
+          echo "Waiting for service to be ready..."
+          for i in $(seq 1 12); do
+            code=$(curl -sL --max-time 15 -o /dev/null -w "%{http_code}" "${BASE_URL}/")
+            if [ "${code}" -ge 200 ] && [ "${code}" -lt 400 ]; then
+              echo "Service ready (HTTP ${code}) on attempt ${i}"
+              break
+            fi
+            echo "Attempt ${i}: HTTP ${code} — retrying in 10s"
+            if [ "${i}" -eq 12 ]; then
+              echo "FAIL: service did not become ready within 2 minutes"
+              exit 1
+            fi
+            sleep 10
+          done
+
+          check "homepage"     "/"             "conduit"
+          check "global-feed"  "/global-feed"  "conduit"
+          check "sign-in"      "/sign-in"      "sign in"
+          check "sign-up"      "/sign-up"      "sign up"
+
+          echo "All smoke tests passed."
+
+  # ─────────────────────────────────────────────────────────────────
+  # JOB 5: Deploy ke Production
+  # Berjalan setelah smoke test staging berhasil.
   # Menggunakan environment "production" — bisa ditambahkan
   # required reviewers di GitHub untuk manual approval sebelum
   # deploy ke production berjalan.
@@ -216,7 +274,7 @@ jobs:
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: deploy-staging
+    needs: smoke-test
     environment: production
 
     steps:
