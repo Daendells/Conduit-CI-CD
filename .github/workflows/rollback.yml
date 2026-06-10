@@ -1,0 +1,82 @@
+name: Manual Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Git SHA of the image to roll back to"
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    name: Rollback Production to ${{ github.event.inputs.sha }}
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Verify image exists in Artifact Registry
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
+        run: |
+          PROJECT_ID=$(printf '%s' "${GCP_PROJECT_ID}" | tr -d '[:space:]')
+          REPO=$(printf '%s' "${ARTIFACT_REPO}" | tr -d '[:space:]')
+          IMAGE="asia-southeast2-docker.pkg.dev/${PROJECT_ID}/${REPO}/pso:${{ github.event.inputs.sha }}"
+          echo "Verifying image: ${IMAGE}"
+          gcloud artifacts docker images describe "${IMAGE}" \
+            || { echo "ERROR: image not found for SHA ${{ github.event.inputs.sha }}"; exit 1; }
+
+      - name: Deploy target SHA to production
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          APP_KEY: ${{ secrets.APP_KEY }}
+          APP_URL: ${{ secrets.APP_URL }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: |
+          PROJECT_ID=$(printf '%s' "${GCP_PROJECT_ID}" | tr -d '[:space:]')
+          REPO=$(printf '%s' "${ARTIFACT_REPO}" | tr -d '[:space:]')
+          CLEAN_APP_KEY=$(printf '%s' "${APP_KEY}" | tr -d '\n\r')
+          CLEAN_APP_URL=$(printf '%s' "${APP_URL}" | tr -d '[:space:]' | sed 's|^http://|https://|')
+          CLEAN_MONGODB_URI=$(printf '%s' "${MONGODB_URI}" | tr -d '\n\r')
+          IMAGE="asia-southeast2-docker.pkg.dev/${PROJECT_ID}/${REPO}/pso:${{ github.event.inputs.sha }}"
+          gcloud run deploy pso-conduit-service \
+            --image="${IMAGE}" \
+            --platform=managed \
+            --region="${GCP_REGION}" \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=512Mi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=3 \
+            --set-env-vars "^|^APP_NAME=Conduit|APP_ENV=production|APP_DEBUG=false|APP_KEY=${CLEAN_APP_KEY}|APP_URL=${CLEAN_APP_URL}|LOG_CHANNEL=stderr|LOG_LEVEL=error|DB_CONNECTION=mongodb|MONGODB_URI=${CLEAN_MONGODB_URI}|MONGODB_DATABASE=conduit|CACHE_DRIVER=array|SESSION_DRIVER=cookie|QUEUE_CONNECTION=sync|FILESYSTEM_DISK=local"
+
+      - name: Smoke test after rollback
+        env:
+          BASE_URL: ${{ secrets.APP_URL }}
+        run: |
+          BASE_URL="${BASE_URL%/}"
+          check() {
+            local http_code
+            http_code=$(curl -sL --max-time 20 -o /dev/null -w "%{http_code}" "${BASE_URL}${1}")
+            echo "${1} → HTTP ${http_code}"
+            [ "${http_code}" -ge 200 ] && [ "${http_code}" -lt 400 ]
+          }
+          check "/api/health"
+          check "/"
+          check "/sign-in"
+          check "/sign-up"
+          echo "Rollback smoke tests passed."

@@ -282,6 +282,17 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
+      - name: Capture previous production revision
+        id: prev-revision
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+        run: |
+          PREV=$(gcloud run services describe pso-conduit-service \
+            --platform=managed \
+            --region="${GCP_REGION}" \
+            --format='value(status.latestReadyRevisionName)')
+          echo "name=$PREV" >> $GITHUB_OUTPUT
+
       - name: Deploy to Cloud Run (Production)
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -317,3 +328,43 @@ jobs:
             --platform=managed \
             --region="${GCP_REGION}" \
             --format='value(status.url)'
+
+      - name: Smoke test production
+        id: smoke-prod
+        env:
+          BASE_URL: ${{ secrets.APP_URL }}
+        run: |
+          BASE_URL="${BASE_URL%/}"
+          check() {
+            local label="$1" path="$2" expect="$3"
+            local http_code body
+            http_code=$(curl -sL --max-time 20 -o /tmp/smoke_body -w "%{http_code}" "${BASE_URL}${path}")
+            body=$(cat /tmp/smoke_body)
+            if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 400 ]; then
+              echo "FAIL [${label}]: HTTP ${http_code}"
+              echo "${body}" | head -c 500
+              exit 1
+            fi
+            if [ -n "${expect}" ] && ! echo "${body}" | grep -qi "${expect}"; then
+              echo "FAIL [${label}]: missing '${expect}' (HTTP ${http_code})"
+              echo "${body}" | head -c 500
+              exit 1
+            fi
+            echo "OK   [${label}]: HTTP ${http_code}"
+          }
+          check "health"      "/api/health"  "ok"
+          check "homepage"    "/"            "conduit"
+          check "sign-in"     "/sign-in"     "sign in"
+          check "sign-up"     "/sign-up"     "sign up"
+          echo "All production smoke tests passed."
+
+      - name: Rollback production if smoke tests failed
+        if: failure() && steps.smoke-prod.outcome == 'failure'
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+        run: |
+          echo "Smoke tests failed — rolling back to ${{ steps.prev-revision.outputs.name }}"
+          gcloud run services update-traffic pso-conduit-service \
+            --platform=managed \
+            --region="${GCP_REGION}" \
+            --to-revisions="${{ steps.prev-revision.outputs.name }}=100"
