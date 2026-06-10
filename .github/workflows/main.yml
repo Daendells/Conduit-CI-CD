@@ -256,19 +256,6 @@ jobs:
             sleep 10
           done
 
-          check_any() {
-            local label="$1" path="$2"
-            local http_code body
-            http_code=$(curl -sL --max-time 20 -o /tmp/smoke_body -w "%{http_code}" "${BASE_URL}${path}")
-            body=$(cat /tmp/smoke_body)
-            if [ "${http_code}" -ge 500 ]; then
-              echo "FAIL [${label}]: HTTP ${http_code}"
-              echo "${body}" | head -c 500
-              exit 1
-            fi
-            echo "OK   [${label}]: HTTP ${http_code}"
-          }
-
           check "health"       "/api/health"           "ok"
           check "homepage"     "/"                     "conduit"
           check "global-feed"  "/global-feed"          "conduit"
@@ -364,18 +351,6 @@ jobs:
             fi
             if [ -n "${expect}" ] && ! echo "${body}" | grep -qi "${expect}"; then
               echo "FAIL [${label}]: missing '${expect}' (HTTP ${http_code})"
-              echo "${body}" | head -c 500
-              exit 1
-            fi
-            echo "OK   [${label}]: HTTP ${http_code}"
-          }
-          check_any() {
-            local label="$1" path="$2"
-            local http_code body
-            http_code=$(curl -sL --max-time 20 -o /tmp/smoke_body -w "%{http_code}" "${BASE_URL}${path}")
-            body=$(cat /tmp/smoke_body)
-            if [ "${http_code}" -ge 500 ]; then
-              echo "FAIL [${label}]: HTTP ${http_code}"
               echo "${body}" | head -c 500
               exit 1
             fi
