@@ -54,7 +54,7 @@ class UserModelTest extends TestCase
         $user = User::factory()->create(['image' => null]);
 
         $this->assertEquals(
-            'https://api.realworld.io/images/smiley-cyrus.jpeg',
+            'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg',
             $user->image
         );
     }
