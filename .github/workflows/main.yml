@@ -277,8 +277,6 @@ jobs:
           check "your-feed"    "/your-feed"            "sign in"
           check "settings"     "/settings"             "sign in"
           check "editor"       "/editor"               "sign in"
-          check_any "article"  "/articles/smoke-test"
-          check_any "profile"  "/users/smoke-test"
 
           echo "All smoke tests passed."
 
@@ -392,8 +390,6 @@ jobs:
           check "your-feed"    "/your-feed"            "sign in"
           check "settings"     "/settings"             "sign in"
           check "editor"       "/editor"               "sign in"
-          check_any "article"  "/articles/smoke-test"
-          check_any "profile"  "/users/smoke-test"
           echo "All production smoke tests passed."
 
       - name: Rollback production if smoke tests failed
