@@ -48,6 +48,38 @@
         box-shadow: none !important;
         border-radius: 0 !important;
       }
+
+      /* Article card — whole card is clickable */
+      .post-preview {
+        position: relative;
+        border-radius: 4px;
+        padding: 1.5rem !important;
+        transition: background 0.15s, box-shadow 0.15s;
+        cursor: pointer;
+      }
+
+      .post-preview:hover {
+        background: #f9f9f9;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      }
+
+      .preview-link {
+        user-select: none;
+      }
+
+      /* Stretch the link to cover the whole card */
+      .preview-link::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+      }
+
+      /* Keep avatar, author, favorite button above the stretched link */
+      .post-preview .post-meta {
+        position: relative;
+        z-index: 1;
+      }
     </style>
 
     <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">

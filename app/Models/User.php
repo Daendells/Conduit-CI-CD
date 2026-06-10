@@ -146,6 +146,6 @@ class User extends Authenticatable
      */
     public function getImageAttribute($value)
     {
-        return $value ?: 'https://api.realworld.io/images/smiley-cyrus.jpeg';
+        return $value ?: 'https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg';
     }
 }
