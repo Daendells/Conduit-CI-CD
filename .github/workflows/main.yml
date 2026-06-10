@@ -256,10 +256,29 @@ jobs:
             sleep 10
           done
 
-          check "homepage"     "/"             "conduit"
-          check "global-feed"  "/global-feed"  "conduit"
-          check "sign-in"      "/sign-in"      "sign in"
-          check "sign-up"      "/sign-up"      "sign up"
+          check_any() {
+            local label="$1" path="$2"
+            local http_code body
+            http_code=$(curl -sL --max-time 20 -o /tmp/smoke_body -w "%{http_code}" "${BASE_URL}${path}")
+            body=$(cat /tmp/smoke_body)
+            if [ "${http_code}" -ge 500 ]; then
+              echo "FAIL [${label}]: HTTP ${http_code}"
+              echo "${body}" | head -c 500
+              exit 1
+            fi
+            echo "OK   [${label}]: HTTP ${http_code}"
+          }
+
+          check "health"       "/api/health"           "ok"
+          check "homepage"     "/"                     "conduit"
+          check "global-feed"  "/global-feed"          "conduit"
+          check "sign-in"      "/sign-in"              "sign in"
+          check "sign-up"      "/sign-up"              "sign up"
+          check "your-feed"    "/your-feed"            "sign in"
+          check "settings"     "/settings"             "sign in"
+          check "editor"       "/editor"               "sign in"
+          check_any "article"  "/articles/smoke-test"
+          check_any "profile"  "/users/smoke-test"
 
           echo "All smoke tests passed."
 
@@ -352,10 +371,29 @@ jobs:
             fi
             echo "OK   [${label}]: HTTP ${http_code}"
           }
-          check "health"      "/api/health"  "ok"
-          check "homepage"    "/"            "conduit"
-          check "sign-in"     "/sign-in"     "sign in"
-          check "sign-up"     "/sign-up"     "sign up"
+          check_any() {
+            local label="$1" path="$2"
+            local http_code body
+            http_code=$(curl -sL --max-time 20 -o /tmp/smoke_body -w "%{http_code}" "${BASE_URL}${path}")
+            body=$(cat /tmp/smoke_body)
+            if [ "${http_code}" -ge 500 ]; then
+              echo "FAIL [${label}]: HTTP ${http_code}"
+              echo "${body}" | head -c 500
+              exit 1
+            fi
+            echo "OK   [${label}]: HTTP ${http_code}"
+          }
+
+          check "health"       "/api/health"           "ok"
+          check "homepage"     "/"                     "conduit"
+          check "global-feed"  "/global-feed"          "conduit"
+          check "sign-in"      "/sign-in"              "sign in"
+          check "sign-up"      "/sign-up"              "sign up"
+          check "your-feed"    "/your-feed"            "sign in"
+          check "settings"     "/settings"             "sign in"
+          check "editor"       "/editor"               "sign in"
+          check_any "article"  "/articles/smoke-test"
+          check_any "profile"  "/users/smoke-test"
           echo "All production smoke tests passed."
 
       - name: Rollback production if smoke tests failed
