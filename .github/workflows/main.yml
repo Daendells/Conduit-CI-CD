@@ -9,12 +9,46 @@ env:
 
 jobs:
   # ─────────────────────────────────────────────────────────────────
-  # JOB 1: Jalankan PHPUnit test
+  # JOB 1: Laravel Pint linting
+  # Berjalan di paling awal sebagai tahap pertama pipeline
+  # ─────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint (Laravel Pint)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs
+
+      - name: Run Pint
+        run: ./vendor/bin/pint --test
+
+  # ─────────────────────────────────────────────────────────────────
+  # JOB 2: Jalankan PHPUnit test
   # Menggunakan Docker container agar environment sama dengan
-  # production (tidak ada konflik ext-mongodb di runner)
+  # production (tidak ada konflik ext-mongodb di runner).
+  # Hanya berjalan jika tahap linting berhasil.
   # ─────────────────────────────────────────────────────────────────
   test:
     name: Run PHPUnit Tests
+    needs: lint
     runs-on: ubuntu-latest
 
     services:
@@ -78,39 +112,6 @@ jobs:
           QUEUE_CONNECTION: sync
           MAIL_MAILER: array
         run: php artisan test --without-tty --coverage
-
-  # ─────────────────────────────────────────────────────────────────
-  # JOB 2: Laravel Pint linting
-  # Berjalan paralel dengan test — build hanya dilanjutkan
-  # jika lint dan test keduanya berhasil
-  # ─────────────────────────────────────────────────────────────────
-  lint:
-    name: Lint (Laravel Pint)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          tools: composer
-
-      - name: Cache Composer packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.composer/cache
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs
-
-      - name: Run Pint
-        run: ./vendor/bin/pint --test
 
   # ─────────────────────────────────────────────────────────────────
   # JOB 3: Build Docker image & Push ke Artifact Registry
