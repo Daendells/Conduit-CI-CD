@@ -41,15 +41,14 @@ class Article extends Model
 
     /**
      * Scope articles to authors followed by a user, including the user's own articles.
+     * Uses direct whereIn on user_id field for MongoDB compatibility.
      */
     public function scopeOfAuthorsFollowedByUser($query, User $user): mixed
     {
         $followingIds = $user->followings->pluck('id')->toArray();
         $followingIds[] = $user->id;
 
-        return $query->whereHas('user', function ($builder) use ($followingIds) {
-            $builder->whereIn('id', $followingIds);
-        });
+        return $query->whereIn('user_id', $followingIds);
     }
 
     /**
