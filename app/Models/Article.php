@@ -41,19 +41,23 @@ class Article extends Model
 
     /**
      * Scope articles to authors followed by a user, including the user's own articles.
-     * user_id in articles is stored as a string (from auth()->user()->id),
-     * so we compare using string IDs for consistency.
+     * Uses the proven hasMany articles() relation to collect article IDs,
+     * avoiding user_id type mismatch issues in MongoDB.
      */
     public function scopeOfAuthorsFollowedByUser($query, User $user): mixed
     {
-        $followingIds = $user->followings->pluck('id')
+        // Load all relevant users: the user themselves + who they follow
+        $relevantUsers = $user->followings->push($user->fresh());
+
+        // Collect article IDs via the proven hasMany relation (same as HTMXUserController)
+        $articleIds = $relevantUsers
+            ->flatMap(fn ($u) => $u->articles->pluck('_id'))
             ->map(fn ($id) => (string) $id)
-            ->push((string) $user->id)
             ->unique()
             ->values()
             ->toArray();
 
-        return $query->whereIn('user_id', $followingIds);
+        return $query->whereIn('_id', $articleIds);
     }
 
     /**
