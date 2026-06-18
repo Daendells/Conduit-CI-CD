@@ -41,6 +41,7 @@ class Article extends Model
 
     /**
      * Scope articles to authors followed by a user, including the user's own articles.
+     * Uses orWhere chains to avoid ObjectId auto-conversion in mongodb-laravel whereIn.
      */
     public function scopeOfAuthorsFollowedByUser($query, User $user): mixed
     {
@@ -51,7 +52,11 @@ class Article extends Model
             ->values()
             ->toArray();
 
-        return $query->whereIn('user_id', $followingIds);
+        return $query->where(function ($q) use ($followingIds) {
+            foreach ($followingIds as $id) {
+                $q->orWhere('user_id', $id);
+            }
+        });
     }
 
     /**
