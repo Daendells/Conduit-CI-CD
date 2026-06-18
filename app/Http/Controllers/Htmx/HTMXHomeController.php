@@ -35,26 +35,12 @@ class HTMXHomeController extends Controller
 
     public function yourFeed()
     {
-        $user = auth()->user();
-
-        // DEBUG LOGGING — remove after fix confirmed
-        \Illuminate\Support\Facades\Log::info('[YourFeed] user', [
-            'user_id'         => $user ? (string) $user->id : 'NULL (not authenticated!)',
-            'user_class'      => $user ? get_class($user) : 'null',
-            'followings_count'=> $user ? $user->followings->count() : 0,
-            'following_ids_raw' => $user ? $user->getAttribute('following_ids') : [],
-        ]);
+        $articles = Article::with(['user', 'tags', 'favoritedUsers']);
 
         $feedNavbarItems = Helpers::feedNavbarItems();
         $feedNavbarItems['personal']['is_active'] = true;
 
-        $articles = Article::with(['user', 'tags', 'favoritedUsers'])
-            ->ofAuthorsFollowedByUser($user)
-            ->paginate(5);
-
-        \Illuminate\Support\Facades\Log::info('[YourFeed] result', [
-            'articles_count' => $articles->total(),
-        ]);
+        $articles = $articles->ofAuthorsFollowedByUser(auth()->user())->paginate(5);
 
         return view('home.partials.post-preview', ['articles' => $articles])
             .view('home.partials.pagination', [
