@@ -41,22 +41,28 @@ class Article extends Model
 
     /**
      * Scope articles to authors followed by a user, including the user's own articles.
-     * Uses orWhere chains to avoid ObjectId auto-conversion in mongodb-laravel whereIn.
+     * Uses direct where() calls (same as hasMany) instead of whereIn to avoid
+     * potential ObjectId auto-conversion in mongodb-laravel.
      */
     public function scopeOfAuthorsFollowedByUser($query, User $user): mixed
     {
+        $userId = (string) $user->id;
+
         $followingIds = $user->followings->pluck('id')
             ->map(fn ($id) => (string) $id)
-            ->push((string) $user->id)
-            ->unique()
+            ->filter()
             ->values()
             ->toArray();
 
-        return $query->where(function ($q) use ($followingIds) {
-            foreach ($followingIds as $id) {
-                $q->orWhere('user_id', $id);
-            }
-        });
+        // Start with own articles
+        $query->where('user_id', $userId);
+
+        // Add followed authors' articles
+        foreach ($followingIds as $id) {
+            $query->orWhere('user_id', $id);
+        }
+
+        return $query;
     }
 
     /**

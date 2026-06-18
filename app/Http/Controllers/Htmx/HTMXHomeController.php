@@ -75,10 +75,10 @@ class HTMXHomeController extends Controller
 
     public function tagFeed(Tag $tag)
     {
+        // Use direct field query on embedded tag_ids array.
+        // MongoDB natively checks if an array field contains a value.
         $articles = Article::with(['tags', 'favoritedUsers'])
-            ->whereHas('tags', function ($q) use ($tag) {
-                $q->where('id', $tag->id);
-            })
+            ->where('tag_ids', (string) $tag->id)
             ->paginate(5);
 
         $feedNavbarItems = Helpers::feedNavbarItems();
