@@ -51,6 +51,17 @@ class Article extends Model
             ->values()
             ->toArray();
 
+        // DEBUG LOGGING — remove after fix confirmed
+        \Illuminate\Support\Facades\Log::info('[Scope] ofAuthorsFollowedByUser', [
+            'user_id'       => (string) $user->id,
+            'followingIds'  => $followingIds,
+            'count'         => count($followingIds),
+        ]);
+
+        // Also check a direct count to verify
+        $directCount = $query->newQuery()->whereIn('user_id', $followingIds)->count();
+        \Illuminate\Support\Facades\Log::info('[Scope] direct count result', ['count' => $directCount]);
+
         return $query->whereIn('user_id', $followingIds);
     }
 
