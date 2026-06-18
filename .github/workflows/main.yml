@@ -225,14 +225,22 @@ jobs:
           echo "Smoke-testing ${BASE_URL}"
 
           check() {
-            local label="$1" path="$2" expect="$3"
+            local label="$1" path="$2" expect="$3" expected_status="${4:-200}"
             local http_code body
             http_code=$(curl -sL --max-time 20 -o /tmp/smoke_body -w "%{http_code}" "${BASE_URL}${path}")
             body=$(cat /tmp/smoke_body)
-            if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 400 ]; then
-              echo "FAIL [${label}]: HTTP ${http_code}"
-              echo "${body}" | head -c 500
-              exit 1
+            if [ "${expected_status}" = "200" ]; then
+              if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 400 ]; then
+                echo "FAIL [${label}]: HTTP ${http_code} (expected 2xx/3xx)"
+                echo "${body}" | head -c 500
+                exit 1
+              fi
+            else
+              if [ "${http_code}" -ne "${expected_status}" ]; then
+                echo "FAIL [${label}]: HTTP ${http_code} (expected ${expected_status})"
+                echo "${body}" | head -c 500
+                exit 1
+              fi
             fi
             if [ -n "${expect}" ] && ! echo "${body}" | grep -qi "${expect}"; then
               echo "FAIL [${label}]: response did not contain '${expect}' (HTTP ${http_code})"
@@ -257,14 +265,19 @@ jobs:
             sleep 10
           done
 
-          check "health"       "/api/health"           "ok"
-          check "homepage"     "/"                     "conduit"
-          check "global-feed"  "/global-feed"          "conduit"
-          check "sign-in"      "/sign-in"              "sign in"
-          check "sign-up"      "/sign-up"              "sign up"
-          check "your-feed"    "/your-feed"            "sign in"
-          check "settings"     "/settings"             "sign in"
-          check "editor"       "/editor"               "sign in"
+          check "health"           "/api/health"               "ok"
+          check "homepage"         "/"                         "conduit"
+          check "global-feed"      "/global-feed"              "conduit"
+          check "sign-in"          "/sign-in"                  "sign in"
+          check "sign-up"          "/sign-up"              "sign up"
+          check "your-feed"        "/your-feed"                "sign in"
+          check "settings"         "/settings"                 "sign in"
+          check "editor"           "/editor"                   "sign in"
+          check "editor-edit"      "/editor/non-existent"      "sign in"
+          check "article-detail"   "/articles/non-existent"    ""            404
+          check "user-profile"     "/users/non-existent"       ""            404
+          check "user-favorites"   "/users/non-existent/favs"  ""            404
+          check "tag-feed"         "/tag-feed/non-existent"    ""            404
 
           echo "All smoke tests passed."
 
@@ -341,14 +354,22 @@ jobs:
         run: |
           BASE_URL="${BASE_URL%/}"
           check() {
-            local label="$1" path="$2" expect="$3"
+            local label="$1" path="$2" expect="$3" expected_status="${4:-200}"
             local http_code body
             http_code=$(curl -sL --max-time 20 -o /tmp/smoke_body -w "%{http_code}" "${BASE_URL}${path}")
             body=$(cat /tmp/smoke_body)
-            if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 400 ]; then
-              echo "FAIL [${label}]: HTTP ${http_code}"
-              echo "${body}" | head -c 500
-              exit 1
+            if [ "${expected_status}" = "200" ]; then
+              if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 400 ]; then
+                echo "FAIL [${label}]: HTTP ${http_code} (expected 2xx/3xx)"
+                echo "${body}" | head -c 500
+                exit 1
+              fi
+            else
+              if [ "${http_code}" -ne "${expected_status}" ]; then
+                echo "FAIL [${label}]: HTTP ${http_code} (expected ${expected_status})"
+                echo "${body}" | head -c 500
+                exit 1
+              fi
             fi
             if [ -n "${expect}" ] && ! echo "${body}" | grep -qi "${expect}"; then
               echo "FAIL [${label}]: missing '${expect}' (HTTP ${http_code})"
@@ -358,14 +379,19 @@ jobs:
             echo "OK   [${label}]: HTTP ${http_code}"
           }
 
-          check "health"       "/api/health"           "ok"
-          check "homepage"     "/"                     "conduit"
-          check "global-feed"  "/global-feed"          "conduit"
-          check "sign-in"      "/sign-in"              "sign in"
-          check "sign-up"      "/sign-up"              "sign up"
-          check "your-feed"    "/your-feed"            "sign in"
-          check "settings"     "/settings"             "sign in"
-          check "editor"       "/editor"               "sign in"
+          check "health"           "/api/health"               "ok"
+          check "homepage"         "/"                         "conduit"
+          check "global-feed"      "/global-feed"              "conduit"
+          check "sign-in"          "/sign-in"                  "sign in"
+          check "sign-up"          "/sign-up"              "sign up"
+          check "your-feed"        "/your-feed"                "sign in"
+          check "settings"         "/settings"                 "sign in"
+          check "editor"           "/editor"                   "sign in"
+          check "editor-edit"      "/editor/non-existent"      "sign in"
+          check "article-detail"   "/articles/non-existent"    ""            404
+          check "user-profile"     "/users/non-existent"       ""            404
+          check "user-favorites"   "/users/non-existent/favs"  ""            404
+          check "tag-feed"         "/tag-feed/non-existent"    ""            404
           echo "All production smoke tests passed."
 
       - name: Rollback production if smoke tests failed
