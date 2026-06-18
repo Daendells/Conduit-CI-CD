@@ -64,7 +64,7 @@ Route::prefix('htmx')->group(function () {
 
     Route::get('/home/feed-navigation', [HTMXHomeController::class, 'feedNavigation']);
     Route::get('/home/global-feed', [HTMXHomeController::class, 'globalFeed']);
-    Route::get('/home/your-feed', [HTMXHomeController::class, 'yourFeed']);
+    Route::get('/home/your-feed', [HTMXHomeController::class, 'yourFeed'])->middleware('auth');
     Route::get('/home/tag-list', [HTMXHomeController::class, 'tagList']);
     Route::get('/home/tag-feed/{tag}', [HTMXHomeController::class, 'tagFeed']);
 

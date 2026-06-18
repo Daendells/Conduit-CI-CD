@@ -41,23 +41,17 @@ class Article extends Model
 
     /**
      * Scope articles to authors followed by a user, including the user's own articles.
-     * Uses the proven hasMany articles() relation to collect article IDs,
-     * avoiding user_id type mismatch issues in MongoDB.
      */
     public function scopeOfAuthorsFollowedByUser($query, User $user): mixed
     {
-        // Load all relevant users: the user themselves + who they follow
-        $relevantUsers = $user->followings->push($user->fresh());
-
-        // Collect article IDs via the proven hasMany relation (same as HTMXUserController)
-        $articleIds = $relevantUsers
-            ->flatMap(fn ($u) => $u->articles->pluck('_id'))
+        $followingIds = $user->followings->pluck('id')
             ->map(fn ($id) => (string) $id)
+            ->push((string) $user->id)
             ->unique()
             ->values()
             ->toArray();
 
-        return $query->whereIn('_id', $articleIds);
+        return $query->whereIn('user_id', $followingIds);
     }
 
     /**
