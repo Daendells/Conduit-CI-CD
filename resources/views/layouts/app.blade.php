@@ -49,6 +49,8 @@
         border-radius: 0 !important;
       }
 
+      .banner { background: #1a73e8 !important; }
+
       /* Article card — whole card is clickable */
       .post-preview {
         position: relative;
