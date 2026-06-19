@@ -149,7 +149,7 @@ jobs:
           REPO=$(printf '%s' "${ARTIFACT_REPO}" | tr -d '[:space:]')
           IMAGE_NAME="asia-southeast2-docker.pkg.dev/${PROJECT_ID}/${REPO}/pso"
           echo "[debug] IMAGE_NAME=${IMAGE_NAME}"
-          docker build --tag "${IMAGE_NAME}:${GITHUB_SHA}" --tag "${IMAGE_NAME}:latest" --file Dockerfile .
+          docker build --no-cache --tag "${IMAGE_NAME}:${GITHUB_SHA}" --tag "${IMAGE_NAME}:latest" --file Dockerfile .
           docker push "${IMAGE_NAME}:${GITHUB_SHA}"
           docker push "${IMAGE_NAME}:latest"
 

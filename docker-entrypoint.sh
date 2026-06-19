@@ -1,9 +1,11 @@
 #!/bin/bash
 # Do NOT use 'set -e' — Apache must always start even if artisan commands fail
 
-echo "==> Clearing config/cache..."
+echo "==> Clearing all caches (config, view, route)..."
 php artisan config:clear 2>&1 || true
 php artisan cache:clear 2>&1 || true
+php artisan view:clear 2>&1 || true
+php artisan route:clear 2>&1 || true
 
 echo "==> Running migrations (non-blocking)..."
 php artisan migrate --force 2>&1 || echo "[WARN] Migrations failed — continuing startup"
